@@ -46,7 +46,7 @@ Game::run ()
       m_field.spawn_fruit ();
       m_field.spawn_fruit ();
       m_field.spawn_fruit ();
-      SDL_SetRenderDrawColor (m_renderer, 0, 0, 0, 1);
+      SDL_SetRenderDrawColor (m_renderer, BLACK.r, BLACK.g, BLACK.b, BLACK.a);
       SDL_RenderClear (m_renderer);
       m_field.render (*m_renderer, m_height, m_width);
       SDL_RenderPresent (m_renderer);

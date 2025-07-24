@@ -3,18 +3,14 @@
 #include "SDL3/SDL_render.h"
 #include <memory>
 #include <vector>
-
-#define POS_PLACEHOLDER -1
+#include "colors.hpp"
 
 class Entity
 {
 public:
-  Entity (int x, int y);
-  virtual void render (SDL_Renderer &renderer, int window_height,
-                       int window_width, int field_height,
-                       int field_width) const
-      = 0;
-  virtual ~Entity () = default;
+  Entity (int x, int y, const Color&color);
+  void render (SDL_Renderer &renderer, int window_height, int window_width,
+               int field_height, int field_width) const;
   bool collides (std::vector<std::unique_ptr<Entity>> &others);
   bool in_bounds ();
 
@@ -38,4 +34,5 @@ public:
 
 protected:
   int m_x, m_y;
+  Color m_color;
 };
