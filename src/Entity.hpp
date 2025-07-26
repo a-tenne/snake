@@ -11,19 +11,28 @@ public:
   Entity (int x, int y, const Color&color);
   void render (SDL_Renderer &renderer, int window_height, int window_width,
                int field_height, int field_width) const;
-  bool collides (std::vector<std::unique_ptr<Entity>> &others);
+  bool collides (const Entity &other) const;
   bool in_bounds ();
 
   inline int
-  get_x ()
+  get_x () const
   {
     return m_x;
   }
 
   inline int
-  get_y ()
+  get_y () const
   {
     return m_y;
+  }
+  inline void
+  set_x(int x) {
+    m_x = x;
+  }
+
+  inline void
+  set_y(int y) {
+    m_y = y;
   }
 
   inline static int

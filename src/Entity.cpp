@@ -3,16 +3,9 @@
 Entity::Entity (int x, int y, const Color&color) : m_x{ x }, m_y{ y }, m_color(color) {}
 
 bool
-Entity::collides (std::vector<std::unique_ptr<Entity>> &others)
+Entity::collides (const Entity &other) const
 {
-  for (auto &other : others)
-    {
-      if (m_x == other->m_x && m_y == other->m_y)
-        {
-          return true;
-        }
-    }
-  return false;
+    return m_x == other.m_x && m_y == other.m_y;
 }
 void
 Entity::render (SDL_Renderer &renderer, int window_height, int window_width,

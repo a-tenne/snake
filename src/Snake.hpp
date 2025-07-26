@@ -1,25 +1,17 @@
 #pragma once
 
-#include "Fruit.hpp"
 #include "SnakePart.hpp"
-
-enum class direction
-{
-  UP,
-  DOWN,
-  LEFT,
-  RIGHT
-};
 
 class Snake
 {
 public:
-  Snake (int x_head, int y_head, direction dir);
+  Snake (int x_head, int y_head, Direction dir);
+  Snake() = default; // this will have invalid state
 
-  inline direction
-  get_direction () const
+  inline void
+  set_direction (Direction dir) 
   {
-    return m_dir;
+    m_head.set_direction(dir);
   }
 
   inline const SnakePart &
@@ -34,10 +26,10 @@ public:
     return m_body;
   }
 
-  void consume_fruit (const Fruit &fruit);
-  void append_body(int x, int y);
+  void move();
+  void eat_fruit();
 private:
   SnakePart m_head;
   std::vector<SnakePart> m_body;
-  direction m_dir;
+  SnakePart m_last_pos;
 };

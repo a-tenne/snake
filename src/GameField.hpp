@@ -1,7 +1,8 @@
 #pragma once
 
-#include "Entity.hpp"
+#include "Fruit.hpp"
 #include "SDL3/SDL_render.h"
+#include "Snake.hpp"
 #include <memory>
 
 class GameField
@@ -9,12 +10,16 @@ class GameField
 public:
   GameField (int height, int width);
   void spawn_fruit ();
+  void update ();
   void render (SDL_Renderer &renderer, int window_height,
                int window_width) const;
-  inline void
-  clear ()
+  void
+  change_snake_direction (Direction dir);
+
+  inline bool
+  is_snake_alive () const
   {
-    m_entities.clear ();
+    return m_snake_alive;
   }
 
 private:
@@ -29,7 +34,12 @@ private:
     }
   };
 
+  bool wall_collides ();
+  bool self_collides();
+
 private:
-  std::vector<std::unique_ptr<Entity>> m_entities;
+  std::vector<std::unique_ptr<Fruit>> m_fruits;
+  Snake m_snake;
   int m_height, m_width;
+  bool m_snake_alive;
 };
