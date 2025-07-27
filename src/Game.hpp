@@ -1,22 +1,35 @@
 #pragma once
 #include "GameField.hpp"
+#include "SDL3_ttf/SDL_ttf.h"
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_main.h>
 #include <string_view>
 class Game
 {
 public:
-  Game (std::string_view title, int width, int height, unsigned int sdl_flags);
+  Game (std::string_view title, int width, int height, unsigned int sdl_flags, std::string_view font_path, int frame_rate);
   ~Game ();
   void run ();
 
 private:
+  enum class GameState {
+    START,
+    RUNNING,
+    FINI
+  } m_state;
   SDL_Window *m_window = nullptr;
   SDL_Renderer *m_renderer = nullptr;
+  TTF_Font *m_font = nullptr;
   GameField m_field;
-  int m_width, m_height;
+  int m_width, m_height, m_frame_rate;
   bool m_running;
 
 private:
   void handle_event (SDL_Event &event);
+  void render_start();
+  void render_running();
+  void render_fini();
+  void render_text_fields(const char *field1, const char *field2);
+  void sdl_exit_error(const std::string &error_msg);
+  void init_game_field();
 };

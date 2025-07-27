@@ -8,13 +8,15 @@
 class GameField
 {
 public:
-  GameField (int height, int width);
+  GameField (int height, int width, int num_fruits);
   void spawn_fruit ();
   void update ();
   void render (SDL_Renderer &renderer, int window_height,
                int window_width) const;
   void
   change_snake_direction (Direction dir);
+  void init();
+  void clear();
 
   inline bool
   is_snake_alive () const
@@ -23,23 +25,12 @@ public:
   }
 
 private:
-  struct coords
-  {
-    int x;
-    int y;
-    bool
-    operator== (const coords &other) const
-    {
-      return x == other.x && y == other.y;
-    }
-  };
-
   bool wall_collides ();
   bool self_collides();
 
 private:
   std::vector<std::unique_ptr<Fruit>> m_fruits;
   Snake m_snake;
-  int m_height, m_width;
+  int m_height, m_width, m_num_fruits;
   bool m_snake_alive;
 };

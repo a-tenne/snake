@@ -1,6 +1,7 @@
 #pragma once
 
 #include "SnakePart.hpp"
+#include <vector>
 
 class Snake
 {

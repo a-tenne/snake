@@ -1,60 +1,38 @@
 #include "GameField.hpp"
 #include "Fruit.hpp"
+#include "Point.hpp"
 #include "SDL3/SDL_render.h"
 #include "SnakePart.hpp"
 #include <algorithm>
 #include <cstdlib>
-#include <iostream>
 #include <memory>
+#include <ranges>
+#include <stdexcept>
 #include <unordered_map>
 
-GameField::GameField (int height, int width)
-    : m_height{ height }, m_width{ width }, m_snake_alive{ true }
+GameField::GameField (int height, int width, int num_fruits)
+    : m_height{ height }, m_width{ width }, m_snake_alive{ false }, m_num_fruits{num_fruits}
 {
-  // Spawn snake relatively in the middle
-  int x_snake = std::rand () % (m_width / 2);
-  int y_snake = std::rand () % (m_height / 2);
-
-  int dir_num = std::rand () % 4;
-  Direction dir;
-  switch (dir_num)
-    {
-    case 0:
-      dir = Direction::UP;
-      break;
-    case 1:
-      dir = Direction::DOWN;
-      break;
-    case 2:
-      dir = Direction::LEFT;
-      break;
-    case 3:
-      dir = Direction::RIGHT;
-      break;
-    default:
-      std::cerr << "Invalid Direction in GameField constructor" << std::endl;
-      break;
-    }
-  m_snake = Snake{ x_snake, y_snake, dir };
 }
 
 void
 GameField::spawn_fruit ()
 {
-  std::vector<coords> entity_coords;
+  std::vector<const Point *> entity_coords;
   for (auto &entity : m_fruits)
     {
-      entity_coords.emplace_back (entity->get_x (), entity->get_y ());
+      entity_coords.push_back (&entity->get_point ());
     }
   const SnakePart &head = m_snake.get_head ();
-  entity_coords.emplace_back (head.get_x (), head.get_y ());
+  entity_coords.push_back (&head.get_point ());
   for (auto &part : m_snake.get_body ())
     {
-      entity_coords.emplace_back (part.get_x (), part.get_y ());
+      entity_coords.push_back (&part.get_point ());
     }
   auto collides = [entity_coords] (int x, int y) {
-    return std::find (entity_coords.begin (), entity_coords.end (),
-                      coords{ x, y })
+    return std::find_if (
+               entity_coords.begin (), entity_coords.end (),
+               [x, y] (const Point *p) { return p != nullptr && p->x == x && p->y == y; })
            != entity_coords.end ();
   };
   int x, y;
@@ -140,12 +118,52 @@ GameField::change_snake_direction (Direction dir)
           { Direction::RIGHT, Direction::LEFT },
           { Direction::UP, Direction::DOWN },
           { Direction::DOWN, Direction::UP } };
-  if(m_snake.get_body().empty()) {
-    m_snake.set_direction(dir);
-    return;
+  if (m_snake.get_body ().empty ())
+    {
+      m_snake.set_direction (dir);
+      return;
+    }
+  auto it = opposites.find (dir);
+  if (it != opposites.end ()
+      && m_snake.get_head ().get_direction () != it->second)
+    {
+      m_snake.set_direction (dir);
+    }
+}
+
+void GameField::init() {
+  for(int _ : std::ranges::views::iota(0,m_num_fruits)) {
+    spawn_fruit();
   }
-  auto it = opposites.find(dir);
-  if(it != opposites.end() && m_snake.get_head().get_direction() != it->second) {
-    m_snake.set_direction(dir);
-  }
+  int x_snake = std::rand () % (m_width / 2) + m_width / 2;
+  int y_snake = std::rand () % (m_height / 2) + m_height / 2;
+
+  int dir_num = std::rand () % 4;
+  Direction dir;
+  switch (dir_num)
+    {
+    case 0:
+      dir = Direction::UP;
+      break;
+    case 1:
+      dir = Direction::DOWN;
+      break;
+    case 2:
+      dir = Direction::LEFT;
+      break;
+    case 3:
+      dir = Direction::RIGHT;
+      break;
+    default:
+      std::runtime_error("Invalid Direction in GameField constructor\n");
+      break;
+    }
+  m_snake = Snake{ x_snake, y_snake, dir };
+  m_snake_alive = true;
+}
+void
+GameField::clear() {
+  m_fruits.clear();
+  m_snake = Snake();
+  m_snake_alive = false;
 }

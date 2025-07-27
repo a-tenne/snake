@@ -1,9 +1,8 @@
 #pragma once
 
+#include "Point.hpp"
 #include "SDL3/SDL_render.h"
-#include <memory>
-#include <vector>
-#include "colors.hpp"
+#include "Color.hpp"
 
 class Entity
 {
@@ -17,22 +16,28 @@ public:
   inline int
   get_x () const
   {
-    return m_x;
+    return m_point.x;
   }
 
   inline int
   get_y () const
   {
-    return m_y;
+    return m_point.y;
   }
+
+  inline const Point &
+  get_point() const {
+    return m_point;
+  }
+
   inline void
   set_x(int x) {
-    m_x = x;
+    m_point.x = x;
   }
 
   inline void
   set_y(int y) {
-    m_y = y;
+    m_point.y = y;
   }
 
   inline static int
@@ -42,6 +47,6 @@ public:
   }
 
 protected:
-  int m_x, m_y;
+  Point m_point;
   Color m_color;
 };
