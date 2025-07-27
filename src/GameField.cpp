@@ -13,6 +13,15 @@
 GameField::GameField (int height, int width, int num_fruits)
     : m_height{ height }, m_width{ width }, m_snake_alive{ false }, m_num_fruits{num_fruits}
 {
+  if(width <= 0) {
+    throw std::invalid_argument(std::string("Invalid width passed to ") + __PRETTY_FUNCTION__ + ": " + std::to_string(width));
+  }
+  if(height <= 0) {
+    throw std::invalid_argument(std::string("Invalid height passed to ") + __PRETTY_FUNCTION__ + ": " + std::to_string(height));
+  }
+  if(num_fruits <= 0) {
+    throw std::invalid_argument(std::string("Invalid number of fruits passed to ") + __PRETTY_FUNCTION__ + ": " + std::to_string(num_fruits));
+  }
 }
 
 void
@@ -155,7 +164,7 @@ void GameField::init() {
       dir = Direction::RIGHT;
       break;
     default:
-      std::runtime_error("Invalid Direction in GameField constructor\n");
+      throw std::logic_error("Invalid Direction in GameField constructor\n");
       break;
     }
   m_snake = Snake{ x_snake, y_snake, dir };

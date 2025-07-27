@@ -1,10 +1,12 @@
 #pragma once
 
+#include "SDL3/SDL_stdinc.h"
+
 struct Color {
-  unsigned char r;
-  unsigned char g;
-  unsigned char b;
-  unsigned char a;
+  Uint8 r;
+  Uint8 g;
+  Uint8 b;
+  Uint8 a;
 };
 
 constexpr Color RED{255,0,0,1};

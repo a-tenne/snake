@@ -10,8 +10,8 @@
 #include "SnakePart.hpp"
 #include <ctime>
 
-constexpr int FIELD_WIDTH = 25;
-constexpr int FIELD_HEIGHT = 25;
+constexpr int FIELD_WIDTH = 50;
+constexpr int FIELD_HEIGHT = 50;
 constexpr int NUM_FRUITS = 3;
 
 Game::Game (std::string_view title, int width, int height,
@@ -20,6 +20,24 @@ Game::Game (std::string_view title, int width, int height,
       m_field{ FIELD_WIDTH, FIELD_HEIGHT, NUM_FRUITS },
       m_state{ GameState::START }, m_frame_rate{ frame_rate }
 {
+  if (width <= 0)
+    {
+      throw std::invalid_argument (std::string ("Window width <= 0 passed to ")
+                                   + __PRETTY_FUNCTION__ + ": "
+                                   + std::to_string (width));
+    }
+  if (height <= 0)
+    {
+      throw std::invalid_argument (
+          std::string ("Window height <= 0 passed to ") + __PRETTY_FUNCTION__
+          + ": " + std::to_string (height));
+    }
+  if (frame_rate <= 0)
+    {
+      throw std::invalid_argument (std::string ("Frame rate <= 0 passed to ")
+                                   + __PRETTY_FUNCTION__ + ": "
+                                   + std::to_string (frame_rate));
+    }
   if (!SDL_Init (sdl_flags)
       || !SDL_CreateWindowAndRenderer (title.data (), width, height,
                                        SDL_WINDOW_RESIZABLE, &m_window,
@@ -31,7 +49,7 @@ Game::Game (std::string_view title, int width, int height,
   m_font = TTF_OpenFont (font_path.data (), 60);
   if (m_font == nullptr)
     {
-      sdl_exit_error ("FONT ERROR: ");
+      sdl_exit_error ("TTF ERROR: ");
     }
   std::srand (std::time (nullptr));
 }
@@ -49,6 +67,7 @@ void
 Game::run ()
 {
   m_running = true;
+  bool text_rendered_once = false;
   while (m_running)
     {
       SDL_Event event;
@@ -61,13 +80,25 @@ Game::run ()
       switch (m_state)
         {
         case GameState::START:
-          render_start ();
+          if (!text_rendered_once)
+            {
+              render_start ();
+              text_rendered_once = true;
+            }
           break;
         case GameState::RUNNING:
           render_running ();
+          if (text_rendered_once)
+            {
+              text_rendered_once = false;
+            }
           break;
         case GameState::FINI:
-          render_fini ();
+          if (!text_rendered_once)
+            {
+              render_fini ();
+              text_rendered_once = true;
+            }
           break;
         }
       SDL_Delay (1000 / m_frame_rate);
