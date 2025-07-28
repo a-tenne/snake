@@ -40,10 +40,10 @@ public:
     m_point.y = y;
   }
 
-  inline static int
+  inline static float
   calculate_dimension (int window_dimension, int field_dimension)
   {
-    return window_dimension / field_dimension;
+    return static_cast<float>(window_dimension) / field_dimension;
   }
 
 protected:

@@ -9,6 +9,7 @@
 #include <ranges>
 #include <stdexcept>
 #include <unordered_map>
+#include <string>
 
 GameField::GameField (int height, int width, int num_fruits)
     : m_height{ height }, m_width{ width }, m_snake_alive{ false }, m_num_fruits{num_fruits}
@@ -65,7 +66,7 @@ GameField::render (SDL_Renderer &renderer, int window_height,
                    int window_width) const
 {
   SDL_FRect border;
-  float diff = std::abs(window_height - window_width);
+  float diff = static_cast<float>(std::abs(window_height - window_width));
   border.x = window_width > window_height ? diff / 2 : 0;
   border.y = window_height > window_width ? diff / 2 : 0;
   border.w = window_width > window_height ? window_width - diff : window_width;
