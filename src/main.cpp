@@ -5,7 +5,7 @@ constexpr const char *NAME = "Snake";
 constexpr int WINDOW_WIDTH = 700;
 constexpr int WINDOW_HEIGHT = 700;
 constexpr unsigned int SDL_FLAGS = SDL_INIT_VIDEO;
-constexpr const char *FONT_PATH = "Pixellettersfull-BnJ5.ttf";
+constexpr const char *FONT_PATH = "assets/Pixellettersfull-BnJ5.ttf";
 constexpr int FRAME_RATE = 10;
 
 int
