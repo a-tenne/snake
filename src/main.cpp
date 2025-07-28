@@ -6,7 +6,7 @@ constexpr int WINDOW_WIDTH = 700;
 constexpr int WINDOW_HEIGHT = 700;
 constexpr unsigned int SDL_FLAGS = SDL_INIT_VIDEO;
 #ifdef NDEBUG
-  constexpr const char *FONT_PATH = "Pixellettersfull-BmJ5.ttf";
+  constexpr const char *FONT_PATH = "Pixellettersfull-BnJ5.ttf";
 #else
   constexpr const char *FONT_PATH = "../src/Pixellettersfull-BnJ5.ttf";
 #endif
