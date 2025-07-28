@@ -1,6 +1,10 @@
 #include "Game.hpp"
 #include <SDL3/SDL_init.h>
 
+#ifdef WIN32
+#include <Windows.h>
+#endif
+
 constexpr const char *NAME = "Snake";
 constexpr int WINDOW_WIDTH = 700;
 constexpr int WINDOW_HEIGHT = 700;
@@ -11,6 +15,9 @@ constexpr int FRAME_RATE = 10;
 int
 main (int argc, char *argv[])
 {
+#ifdef WIN32
+  FreeConsole ();
+#endif
   Game game (NAME, WINDOW_WIDTH, WINDOW_HEIGHT, SDL_FLAGS, FONT_PATH,
              FRAME_RATE);
   game.run ();
