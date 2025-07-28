@@ -33,6 +33,8 @@ FetchContent_MakeAvailable(SDL3_ttf)
 
 file(GLOB_RECURSE SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp)
 
+file(COPY assets DESTINATION ${CMAKE_BINARY_DIR})
+
 add_executable(${PROJECT_NAME} ${SOURCES})
 
 add_compile_options(-Wall -Werr -pedantic -fsanitize=address,undefined)
