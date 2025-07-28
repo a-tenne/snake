@@ -15,13 +15,19 @@ Entity::collides (const Entity &other) const
 
 void
 Entity::render (SDL_Renderer &renderer, const SDL_FRect &border,
-                int field_height, int field_width) const
+                int field_height, int field_width, bool snake_alive) const
 {
-  if(m_point.x < 0) {
-    throw std::logic_error(std::string("Invalid x coordinate in ") + __PRETTY_FUNCTION__ + ": " + std::to_string(m_point.x));
+  #if defined(__clang__) || defined(__GNUC__)
+    constexpr const char *fn_name = __PRETTY_FUNCTION__;
+  #elif defined(_MSV_VER)
+    constexpr const char *fn_name = __FUNCSIG__;
+  #endif
+
+  if(m_point.x < 0 && !snake_alive) {
+    throw std::logic_error(std::string("Invalid x coordinate in ") + fn_name + ": " + std::to_string(m_point.x));
   }
-  if(m_point.y < 0) {
-    throw std::logic_error((std::string("Invalid y coordinate in ") + __PRETTY_FUNCTION__ + ": " + std::to_string(m_point.y)));
+  if(m_point.y < 0 && !snake_alive) {
+    throw std::logic_error((std::string("Invalid y coordinate in ") + fn_name + ": " + std::to_string(m_point.y)));
   }
   float cell_width = calculate_dimension (border.w, field_width);
   float cell_height = calculate_dimension (border.h, field_height);

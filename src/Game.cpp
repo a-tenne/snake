@@ -20,22 +20,27 @@ Game::Game (std::string_view title, int width, int height,
       m_field{ FIELD_WIDTH, FIELD_HEIGHT, NUM_FRUITS },
       m_state{ GameState::START }, m_frame_rate{ frame_rate }
 {
+  #if defined(__clang__) || defined(__GNUC__)
+    constexpr const char *fn_name = __PRETTY_FUNCTION__;
+  #elif defined(_MSV_VER)
+    constexpr const char *fn_name = __FUNCSIG__;
+  #endif
   if (width <= 0)
     {
       throw std::invalid_argument (std::string ("Window width <= 0 passed to ")
-                                   + __PRETTY_FUNCTION__ + ": "
+                                   + fn_name + ": "
                                    + std::to_string (width));
     }
   if (height <= 0)
     {
       throw std::invalid_argument (
-          std::string ("Window height <= 0 passed to ") + __PRETTY_FUNCTION__
+          std::string ("Window height <= 0 passed to ") + fn_name 
           + ": " + std::to_string (height));
     }
   if (frame_rate <= 0)
     {
       throw std::invalid_argument (std::string ("Frame rate <= 0 passed to ")
-                                   + __PRETTY_FUNCTION__ + ": "
+                                   + fn_name + ": "
                                    + std::to_string (frame_rate));
     }
   if (!SDL_Init (sdl_flags)

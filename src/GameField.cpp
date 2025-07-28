@@ -13,14 +13,19 @@
 GameField::GameField (int height, int width, int num_fruits)
     : m_height{ height }, m_width{ width }, m_snake_alive{ false }, m_num_fruits{num_fruits}
 {
+  #if defined(__clang__) || defined(__GNUC__)
+    constexpr const char *fn_name = __PRETTY_FUNCTION__;
+  #elif defined(_MSV_VER)
+    constexpr const char *fn_name = __FUNCSIG__;
+  #endif
   if(width <= 0) {
-    throw std::invalid_argument(std::string("Invalid width passed to ") + __PRETTY_FUNCTION__ + ": " + std::to_string(width));
+    throw std::invalid_argument(std::string("Invalid width passed to ") + fn_name + ": " + std::to_string(width));
   }
   if(height <= 0) {
-    throw std::invalid_argument(std::string("Invalid height passed to ") + __PRETTY_FUNCTION__ + ": " + std::to_string(height));
+    throw std::invalid_argument(std::string("Invalid height passed to ") + fn_name + ": " + std::to_string(height));
   }
   if(num_fruits <= 0) {
-    throw std::invalid_argument(std::string("Invalid number of fruits passed to ") + __PRETTY_FUNCTION__ + ": " + std::to_string(num_fruits));
+    throw std::invalid_argument(std::string("Invalid number of fruits passed to ") + fn_name + ": " + std::to_string(num_fruits));
   }
 }
 
@@ -66,15 +71,15 @@ GameField::render (SDL_Renderer &renderer, int window_height,
   border.w = window_width > window_height ? window_width - diff : window_width;
   border.h = window_height > window_width ? window_height - diff : window_height;
   m_snake.get_head ().render (renderer, border, m_height,
-                              m_width);
+                              m_width, m_snake_alive);
   for (auto &part : m_snake.get_body ())
     {
-      part.render (renderer, border, m_height, m_width);
+      part.render (renderer, border, m_height, m_width, m_snake_alive);
     }
   for (auto &entity : m_fruits)
     {
       entity->render (renderer, border, m_height,
-                      m_width);
+                      m_width, m_snake_alive);
     }
   SDL_SetRenderDrawColor(&renderer, YELLOW.r, YELLOW.g, YELLOW.b, YELLOW.a);
   SDL_RenderRect(&renderer, &border);

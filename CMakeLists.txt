@@ -1,10 +1,11 @@
-cmake_minimum_required(VERSION 4.0)
+cmake_minimum_required(VERSION 3.12)
 project(Snake)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
 
 # Need to set those before fetching and building SDL3
 set(SDL_TEST OFF)
