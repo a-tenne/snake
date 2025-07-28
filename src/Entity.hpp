@@ -9,7 +9,7 @@ class Entity
 public:
   Entity (int x, int y, Color color);
   void render (SDL_Renderer &renderer, const SDL_FRect &border,
-               int field_height, int field_width, bool snake_alive) const;
+               int field_height, int field_width) const;
   bool collides (const Entity &other) const;
   bool in_bounds ();
 

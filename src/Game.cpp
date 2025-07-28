@@ -227,13 +227,14 @@ Game::render_running ()
   SDL_SetRenderDrawColor (m_renderer, BLACK.r, BLACK.g, BLACK.b, BLACK.a);
   SDL_RenderClear (m_renderer);
   m_field.update ();
-  m_field.render (*m_renderer, m_height, m_width);
-  SDL_RenderPresent (m_renderer);
   if (!m_field.is_snake_alive ())
     {
       m_state = GameState::FINI;
       m_field.clear ();
+      return;
     }
+  m_field.render (*m_renderer, m_height, m_width);
+  SDL_RenderPresent (m_renderer);
 }
 
 void
