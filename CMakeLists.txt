@@ -34,7 +34,7 @@ file(GLOB_RECURSE SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp)
 
 add_executable(${PROJECT_NAME} ${SOURCES})
 
-add_compile_options(-Wall -pedantic -fsanitize=address,undefined)
+add_compile_options(-Wall -Werr -pedantic -fsanitize=address,undefined)
 
 target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/include)
 target_include_directories(${PROJECT_NAME} PRIVATE ${SDL3_SOURCE_DIR}/include)

@@ -59,17 +59,25 @@ void
 GameField::render (SDL_Renderer &renderer, int window_height,
                    int window_width) const
 {
-  m_snake.get_head ().render (renderer, window_height, window_width, m_height,
+  SDL_FRect border;
+  float diff = std::abs(window_height - window_width);
+  border.x = window_width > window_height ? diff / 2 : 0;
+  border.y = window_height > window_width ? diff / 2 : 0;
+  border.w = window_width > window_height ? window_width - diff : window_width;
+  border.h = window_height > window_width ? window_height - diff : window_height;
+  m_snake.get_head ().render (renderer, border, m_height,
                               m_width);
   for (auto &part : m_snake.get_body ())
     {
-      part.render (renderer, window_height, window_width, m_height, m_width);
+      part.render (renderer, border, m_height, m_width);
     }
   for (auto &entity : m_fruits)
     {
-      entity->render (renderer, window_height, window_width, m_height,
+      entity->render (renderer, border, m_height,
                       m_width);
     }
+  SDL_SetRenderDrawColor(&renderer, YELLOW.r, YELLOW.g, YELLOW.b, YELLOW.a);
+  SDL_RenderRect(&renderer, &border);
 }
 
 void

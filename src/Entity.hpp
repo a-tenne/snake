@@ -8,7 +8,7 @@ class Entity
 {
 public:
   Entity (int x, int y, Color color);
-  void render (SDL_Renderer &renderer, int window_height, int window_width,
+  void render (SDL_Renderer &renderer, const SDL_FRect &border,
                int field_height, int field_width) const;
   bool collides (const Entity &other) const;
   bool in_bounds ();

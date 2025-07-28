@@ -70,6 +70,7 @@ Game::run ()
   bool text_rendered_once = false;
   while (m_running)
     {
+      int old_height = m_height, old_width = m_width;
       SDL_Event event;
       while (SDL_PollEvent (&event))
         {
@@ -77,6 +78,10 @@ Game::run ()
         }
       if (!m_running)
         return;
+      if (old_height != m_height || old_width != m_width)
+        {
+          text_rendered_once = false;
+        }
       switch (m_state)
         {
         case GameState::START:
@@ -215,14 +220,13 @@ Game::render_running ()
   SDL_SetRenderDrawColor (m_renderer, BLACK.r, BLACK.g, BLACK.b, BLACK.a);
   SDL_RenderClear (m_renderer);
   m_field.update ();
+  m_field.render (*m_renderer, m_height, m_width);
+  SDL_RenderPresent (m_renderer);
   if (!m_field.is_snake_alive ())
     {
       m_state = GameState::FINI;
       m_field.clear ();
-      return;
     }
-  m_field.render (*m_renderer, m_height, m_width);
-  SDL_RenderPresent (m_renderer);
 }
 
 void
