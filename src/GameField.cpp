@@ -150,8 +150,7 @@ GameField::change_snake_direction (Direction dir)
       m_snake.set_direction (dir);
       return;
     }
-  auto it = opposites.find (dir);
-  if (it != opposites.end ()
+  if (auto it = opposites.find (dir);it != opposites.end ()
       && m_snake.get_head ().get_direction () != it->second)
     {
       m_snake.set_direction (dir);
@@ -161,7 +160,7 @@ GameField::change_snake_direction (Direction dir)
 void
 GameField::init ()
 {
-  for (int _ : std::ranges::views::iota (0, m_num_fruits))
+  for (int _ : std::ranges::views::iota(0,m_num_fruits))
     {
       spawn_fruit ();
     }

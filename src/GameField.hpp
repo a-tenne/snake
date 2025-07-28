@@ -9,7 +9,6 @@ class GameField
 {
 public:
   GameField (int side_length, int num_fruits);
-  void spawn_fruit ();
   void update ();
   void render (SDL_Renderer &renderer, int window_height,
                int window_width) const;
@@ -27,6 +26,7 @@ public:
 private:
   bool wall_collides ();
   bool self_collides();
+  void spawn_fruit ();
 
 private:
   std::vector<std::unique_ptr<Fruit>> m_fruits;

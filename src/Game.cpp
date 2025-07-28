@@ -12,14 +12,14 @@
 #include <stdexcept>
 #include <string>
 
-constexpr int SIDE_LENGTH = 50;
-constexpr int NUM_FRUITS = 3;
+constexpr int SIDE_LENGTH = 35;
+constexpr int NUM_FRUITS = 4;
 
 Game::Game (std::string_view title, int width, int height,
             unsigned int sdl_flags, std::string_view font_path, int frame_rate)
     : m_width{ width }, m_height{ height }, m_running{ true },
-      m_field{ SIDE_LENGTH, NUM_FRUITS },
-      m_state{ GameState::START }, m_frame_rate{ frame_rate }
+      m_field {SIDE_LENGTH, NUM_FRUITS}, m_state{ GameState::START },
+      m_frame_rate{ frame_rate }
 {
 #if defined(__clang__) || defined(__GNUC__)
   constexpr const char *fn_name = __PRETTY_FUNCTION__;
@@ -51,8 +51,8 @@ Game::Game (std::string_view title, int width, int height,
     {
       sdl_exit_error ("SDL ERROR: ");
     }
-  m_font = TTF_OpenFont (font_path.data (), 60);
-  if (m_font == nullptr)
+  
+  if (m_font = TTF_OpenFont (font_path.data (), 60); m_font == nullptr)
     {
       sdl_exit_error ("TTF ERROR: ");
     }
