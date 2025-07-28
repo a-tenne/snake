@@ -8,26 +8,30 @@
 #include <memory>
 #include <ranges>
 #include <stdexcept>
-#include <unordered_map>
 #include <string>
+#include <unordered_map>
 
-GameField::GameField (int height, int width, int num_fruits)
-    : m_height{ height }, m_width{ width }, m_snake_alive{ false }, m_num_fruits{num_fruits}
+GameField::GameField (int side_length, int num_fruits)
+    : m_side_length{ side_length }, m_snake_alive{ false },
+      m_num_fruits{ num_fruits }
 {
-  #if defined(__clang__) || defined(__GNUC__)
-    constexpr const char *fn_name = __PRETTY_FUNCTION__;
-  #elif defined(_MSC_VER)
-    constexpr const char *fn_name = __FUNCSIG__;
-  #endif
-  if(width <= 0) {
-    throw std::invalid_argument(std::string("Invalid width passed to ") + fn_name + ": " + std::to_string(width));
-  }
-  if(height <= 0) {
-    throw std::invalid_argument(std::string("Invalid height passed to ") + fn_name + ": " + std::to_string(height));
-  }
-  if(num_fruits <= 0) {
-    throw std::invalid_argument(std::string("Invalid number of fruits passed to ") + fn_name + ": " + std::to_string(num_fruits));
-  }
+#if defined(__clang__) || defined(__GNUC__)
+  constexpr const char *fn_name = __PRETTY_FUNCTION__;
+#elif defined(_MSC_VER)
+  constexpr const char *fn_name = __FUNCSIG__;
+#endif
+  if (side_length <= 0)
+    {
+      throw std::invalid_argument (std::string ("Invalid width passed to ")
+                                   + fn_name + ": "
+                                   + std::to_string (side_length));
+    }
+  if (num_fruits <= 0)
+    {
+      throw std::invalid_argument (
+          std::string ("Invalid number of fruits passed to ") + fn_name + ": "
+          + std::to_string (num_fruits));
+    }
 }
 
 void
@@ -45,16 +49,17 @@ GameField::spawn_fruit ()
       entity_coords.push_back (&part.get_point ());
     }
   auto collides = [entity_coords] (int x, int y) {
-    return std::find_if (
-               entity_coords.begin (), entity_coords.end (),
-               [x, y] (const Point *p) { return p != nullptr && p->x == x && p->y == y; })
+    return std::find_if (entity_coords.begin (), entity_coords.end (),
+                         [x, y] (const Point *p) {
+                           return p != nullptr && p->x == x && p->y == y;
+                         })
            != entity_coords.end ();
   };
   int x, y;
   do
     {
-      x = std::rand () % m_width;
-      y = std::rand () % m_height;
+      x = std::rand () % m_side_length;
+      y = x;
     }
   while (collides (x, y));
 
@@ -66,24 +71,23 @@ GameField::render (SDL_Renderer &renderer, int window_height,
                    int window_width) const
 {
   SDL_FRect border;
-  float diff = static_cast<float>(std::abs(window_height - window_width));
+  float diff = static_cast<float> (std::abs (window_height - window_width));
   border.x = window_width > window_height ? diff / 2 : 0;
   border.y = window_height > window_width ? diff / 2 : 0;
   border.w = window_width > window_height ? window_width - diff : window_width;
-  border.h = window_height > window_width ? window_height - diff : window_height;
-  m_snake.get_head ().render (renderer, border, m_height,
-                              m_width);
+  border.h
+      = window_height > window_width ? window_height - diff : window_height;
+  m_snake.get_head ().render (renderer, border, m_side_length);
   for (auto &part : m_snake.get_body ())
     {
-      part.render (renderer, border, m_height, m_width);
+      part.render (renderer, border, m_side_length);
     }
   for (auto &entity : m_fruits)
     {
-      entity->render (renderer, border, m_height,
-                      m_width);
+      entity->render (renderer, border, m_side_length);
     }
-  SDL_SetRenderDrawColor(&renderer, YELLOW.r, YELLOW.g, YELLOW.b, YELLOW.a);
-  SDL_RenderRect(&renderer, &border);
+  SDL_SetRenderDrawColor (&renderer, YELLOW.r, YELLOW.g, YELLOW.b, YELLOW.a);
+  SDL_RenderRect (&renderer, &border);
 }
 
 void
@@ -117,8 +121,8 @@ bool
 GameField::wall_collides ()
 {
   auto &head = m_snake.get_head ();
-  return head.get_x () < 0 || head.get_x () >= m_width || head.get_y () < 0
-         || head.get_y () >= m_height;
+  return head.get_x () < 0 || head.get_x () >= m_side_length|| head.get_y () < 0
+         || head.get_y () >= m_side_length;
 }
 
 bool
@@ -154,12 +158,15 @@ GameField::change_snake_direction (Direction dir)
     }
 }
 
-void GameField::init() {
-  for(int _ : std::ranges::views::iota(0,m_num_fruits)) {
-    spawn_fruit();
-  }
-  int x_snake = std::rand () % (m_width / 2) + m_width / 2;
-  int y_snake = std::rand () % (m_height / 2) + m_height / 2;
+void
+GameField::init ()
+{
+  for (int _ : std::ranges::views::iota (0, m_num_fruits))
+    {
+      spawn_fruit ();
+    }
+  int x_snake = std::rand () % (m_side_length / 2) + m_side_length / 4;
+  int y_snake = std::rand () % (m_side_length / 2) + m_side_length / 4;
 
   int dir_num = std::rand () % 4;
   Direction dir;
@@ -178,15 +185,16 @@ void GameField::init() {
       dir = Direction::RIGHT;
       break;
     default:
-      throw std::logic_error("Invalid Direction in GameField constructor\n");
+      throw std::logic_error ("Invalid Direction in GameField constructor\n");
       break;
     }
   m_snake = Snake{ x_snake, y_snake, dir };
   m_snake_alive = true;
 }
 void
-GameField::clear() {
-  m_fruits.clear();
-  m_snake = Snake();
+GameField::clear ()
+{
+  m_fruits.clear ();
+  m_snake = Snake ();
   m_snake_alive = false;
 }

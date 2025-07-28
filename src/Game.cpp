@@ -12,14 +12,13 @@
 #include <stdexcept>
 #include <string>
 
-constexpr int FIELD_WIDTH = 50;
-constexpr int FIELD_HEIGHT = 50;
+constexpr int SIDE_LENGTH = 50;
 constexpr int NUM_FRUITS = 3;
 
 Game::Game (std::string_view title, int width, int height,
             unsigned int sdl_flags, std::string_view font_path, int frame_rate)
     : m_width{ width }, m_height{ height }, m_running{ true },
-      m_field{ FIELD_WIDTH, FIELD_HEIGHT, NUM_FRUITS },
+      m_field{ SIDE_LENGTH, NUM_FRUITS },
       m_state{ GameState::START }, m_frame_rate{ frame_rate }
 {
 #if defined(__clang__) || defined(__GNUC__)

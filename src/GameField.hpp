@@ -8,7 +8,7 @@
 class GameField
 {
 public:
-  GameField (int height, int width, int num_fruits);
+  GameField (int side_length, int num_fruits);
   void spawn_fruit ();
   void update ();
   void render (SDL_Renderer &renderer, int window_height,
@@ -31,6 +31,6 @@ private:
 private:
   std::vector<std::unique_ptr<Fruit>> m_fruits;
   Snake m_snake;
-  int m_height, m_width, m_num_fruits;
+  int m_side_length, m_num_fruits;
   bool m_snake_alive;
 };

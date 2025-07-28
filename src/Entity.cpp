@@ -15,7 +15,7 @@ Entity::collides (const Entity &other) const
 
 void
 Entity::render (SDL_Renderer &renderer, const SDL_FRect &border,
-                int field_height, int field_width) const
+                int side_length) const
 {
   #if defined(__clang__) || defined(__GNUC__)
     constexpr const char *fn_name = __PRETTY_FUNCTION__;
@@ -23,14 +23,14 @@ Entity::render (SDL_Renderer &renderer, const SDL_FRect &border,
     constexpr const char *fn_name = __FUNCSIG__;
   #endif
 
-  if(m_point.x < 0 || m_point.x >= field_width) {
+  if(m_point.x < 0 || m_point.x >= side_length) {
     throw std::logic_error(std::string("Invalid x coordinate in ") + fn_name + ": " + std::to_string(m_point.x));
   }
-  if(m_point.y < 0 || m_point.y >= field_height) {
+  if(m_point.y < 0 || m_point.y >= side_length) {
     throw std::logic_error((std::string("Invalid y coordinate in ") + fn_name + ": " + std::to_string(m_point.y)));
   }
-  float cell_width = calculate_dimension (border.w, field_width);
-  float cell_height = calculate_dimension (border.h, field_height);
+  float cell_width = calculate_dimension (border.w, side_length);
+  float cell_height = calculate_dimension (border.h, side_length);
   float cell_size = std::min (cell_width, cell_height);
 
   SDL_FRect frect;
