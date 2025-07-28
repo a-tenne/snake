@@ -9,6 +9,8 @@
 #include "SDL3_ttf/SDL_ttf.h"
 #include "SnakePart.hpp"
 #include <ctime>
+#include <stdexcept>
+#include <string>
 
 constexpr int FIELD_WIDTH = 50;
 constexpr int FIELD_HEIGHT = 50;
@@ -16,26 +18,25 @@ constexpr int NUM_FRUITS = 3;
 
 Game::Game (std::string_view title, int width, int height,
             unsigned int sdl_flags, std::string_view font_path, int frame_rate)
-    : m_width{ width }, m_height{ height },
+    : m_width{ width }, m_height{ height }, m_running{ true },
       m_field{ FIELD_WIDTH, FIELD_HEIGHT, NUM_FRUITS },
       m_state{ GameState::START }, m_frame_rate{ frame_rate }
 {
-  #if defined(__clang__) || defined(__GNUC__)
-    constexpr const char *fn_name = __PRETTY_FUNCTION__;
-  #elif defined(_MSV_VER)
-    constexpr const char *fn_name = __FUNCSIG__;
-  #endif
+#if defined(__clang__) || defined(__GNUC__)
+  constexpr const char *fn_name = __PRETTY_FUNCTION__;
+#elif defined(_MSC_VER)
+  constexpr const char *fn_name = __FUNCSIG__;
+#endif
   if (width <= 0)
     {
       throw std::invalid_argument (std::string ("Window width <= 0 passed to ")
-                                   + fn_name + ": "
-                                   + std::to_string (width));
+                                   + fn_name + ": " + std::to_string (width));
     }
   if (height <= 0)
     {
       throw std::invalid_argument (
-          std::string ("Window height <= 0 passed to ") + fn_name 
-          + ": " + std::to_string (height));
+          std::string ("Window height <= 0 passed to ") + fn_name + ": "
+          + std::to_string (height));
     }
   if (frame_rate <= 0)
     {
@@ -56,7 +57,7 @@ Game::Game (std::string_view title, int width, int height,
     {
       sdl_exit_error ("TTF ERROR: ");
     }
-  std::srand (std::time (nullptr));
+  std::srand (static_cast<unsigned int> (std::time (nullptr)));
 }
 
 Game::~Game ()
@@ -71,7 +72,6 @@ Game::~Game ()
 void
 Game::run ()
 {
-  m_running = true;
   bool text_rendered_once = false;
   while (m_running)
     {
@@ -125,6 +125,7 @@ Game::handle_event (SDL_Event &event)
       break;
     case SDL_EVENT_WINDOW_RESIZED:
       SDL_GetWindowSize (m_window, &m_width, &m_height);
+      break;
     case SDL_EVENT_KEY_DOWN:
       switch (event.key.key)
         {
@@ -162,6 +163,7 @@ Game::handle_event (SDL_Event &event)
         default:
           break;
         }
+      break;
     default:
       break;
     }

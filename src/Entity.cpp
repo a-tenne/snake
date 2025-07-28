@@ -19,7 +19,7 @@ Entity::render (SDL_Renderer &renderer, const SDL_FRect &border,
 {
   #if defined(__clang__) || defined(__GNUC__)
     constexpr const char *fn_name = __PRETTY_FUNCTION__;
-  #elif defined(_MSV_VER)
+  #elif defined(_MSC_VER)
     constexpr const char *fn_name = __FUNCSIG__;
   #endif
 

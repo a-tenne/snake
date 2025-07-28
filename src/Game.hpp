@@ -1,9 +1,11 @@
 #pragma once
+#define SDL_MAIN_HANDLED
 #include "GameField.hpp"
 #include "SDL3_ttf/SDL_ttf.h"
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_main.h>
 #include <string_view>
+#include <string>
 class Game
 {
 public:
@@ -31,5 +33,4 @@ private:
   void render_fini();
   void render_text_fields(const char *field1, const char *field2);
   void sdl_exit_error(const std::string &error_msg);
-  void init_game_field();
 };
