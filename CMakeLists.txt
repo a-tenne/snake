@@ -15,7 +15,6 @@ set(SDL_SHARED OFF)
 set(BUILD_SHARED_LIBS OFF)
 set(SDLTTF_SAMPLES OFF)
 
-
 include(FetchContent)
 FetchContent_Declare(
   SDL3
@@ -36,6 +35,8 @@ file(GLOB_RECURSE SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp)
 file(COPY assets DESTINATION ${CMAKE_BINARY_DIR})
 
 add_executable(${PROJECT_NAME} ${SOURCES})
+
+set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT ${PROJECT_NAME})
 
 add_compile_options(-Wall -Werr -pedantic -fsanitize=address,undefined)
 
