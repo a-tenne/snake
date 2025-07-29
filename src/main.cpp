@@ -18,7 +18,7 @@ constexpr int WINDOW_WIDTH = 700;
 constexpr int WINDOW_HEIGHT = 700;
 constexpr unsigned int SDL_FLAGS = SDL_INIT_VIDEO;
 
-constexpr int FRAME_RATE = 10;
+constexpr int TICKS_PER_SECOND = 7;
 
 int
 main (int argc, char *argv[])
@@ -45,7 +45,7 @@ main (int argc, char *argv[])
         }
       path = path.erase (path.find_last_of (separator) + 1);
       Game game (NAME, WINDOW_WIDTH, WINDOW_HEIGHT, SDL_FLAGS,
-                 path + FONT_PATH, FRAME_RATE);
+                 path + FONT_PATH, TICKS_PER_SECOND);
       game.run ();
     }
   catch (const std::exception &e)

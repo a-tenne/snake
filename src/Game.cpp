@@ -5,6 +5,8 @@
 #include "SDL3/SDL_pixels.h"
 #include "SDL3/SDL_render.h"
 #include "SDL3/SDL_surface.h"
+#include "SDL3/SDL_time.h"
+#include "SDL3/SDL_timer.h"
 #include "SDL3/SDL_video.h"
 #include "SDL3_ttf/SDL_ttf.h"
 #include "SnakePart.hpp"
@@ -17,10 +19,11 @@ constexpr int SIDE_LENGTH = 35;
 constexpr int NUM_FRUITS = 4;
 
 Game::Game (std::string_view title, int width, int height,
-            unsigned int sdl_flags, std::string_view font_path, int frame_rate)
+            unsigned int sdl_flags, std::string_view font_path,
+            int ticks_per_second)
     : m_width{ width }, m_height{ height }, m_running{ true },
       m_field{ SIDE_LENGTH, NUM_FRUITS }, m_state{ GameState::START },
-      m_frame_rate{ frame_rate }, m_is_fullscreen{ false }
+      m_ticks_per_second{ ticks_per_second }, m_is_fullscreen{ false }
 {
   constexpr auto fn_name = pretty_fn_name ();
 
@@ -34,23 +37,27 @@ Game::Game (std::string_view title, int width, int height,
       throw std::invalid_argument (std::format (
           "Window height <= 0 passed to {}: {}\n", fn_name, height));
     }
-  if (frame_rate <= 0)
+  if (ticks_per_second <= 0)
     {
-      throw std::invalid_argument (std::format (
-          "Frame rate <= 0 passed to {}: {}\n", fn_name, frame_rate));
+      throw std::invalid_argument (
+          std::format ("Ticks per second <= 0 passed to {}: {}\n", fn_name,
+                       ticks_per_second));
     }
-  if (!SDL_Init (sdl_flags)
-      || !SDL_CreateWindowAndRenderer (title.data (), width, height,
-                                       SDL_WINDOW_RESIZABLE, &m_window,
-                                       &m_renderer)
-      || !TTF_Init ())
+  const bool sdl_correct_init
+      = SDL_Init (sdl_flags) && TTF_Init ()
+        && SDL_CreateWindowAndRenderer (title.data (), width, height,
+                                        SDL_WINDOW_RESIZABLE, &m_window,
+                                        &m_renderer)
+        && SDL_GetCurrentTime (&m_time)
+        && SDL_SetRenderVSync (m_renderer, SDL_RENDERER_VSYNC_ADAPTIVE);
+  if (!sdl_correct_init)
     {
-      sdl_exit_error ("SDL ERROR: ");
+      sdl_exit_error ("SDL ERROR");
     }
 
   if (m_font = TTF_OpenFont (font_path.data (), 60); m_font == nullptr)
     {
-      sdl_exit_error ("TTF ERROR: ");
+      sdl_exit_error ("TTF ERROR");
     }
   std::srand (static_cast<unsigned int> (std::time (nullptr)));
 }
@@ -71,6 +78,10 @@ Game::run ()
   while (m_running)
     {
       int old_height = m_height, old_width = m_width;
+      if (!SDL_GetCurrentTime (&m_time))
+        {
+          sdl_exit_error ("SDL ERROR");
+        }
       SDL_Event event;
       while (SDL_PollEvent (&event))
         {
@@ -106,7 +117,6 @@ Game::run ()
             }
           break;
         }
-      SDL_Delay (1000 / m_frame_rate);
     }
 }
 
@@ -183,7 +193,7 @@ Game::render_text_fields (const char *field1, const char *field2)
       TTF_RenderText_Solid (m_font, field2, 0, white), SDL_DestroySurface);
   if (surface1 == nullptr || surface2 == nullptr)
     {
-      sdl_exit_error ("TTF ERROR: ");
+      sdl_exit_error ("TTF ERROR");
     }
   std::unique_ptr<SDL_Texture, void (*) (SDL_Texture *)> texture1 (
       SDL_CreateTextureFromSurface (m_renderer, surface1.get ()),
@@ -193,7 +203,7 @@ Game::render_text_fields (const char *field1, const char *field2)
       SDL_DestroyTexture);
   if (texture1 == nullptr || texture2 == nullptr)
     {
-      sdl_exit_error ("SDL ERROR: ");
+      sdl_exit_error ("SDL ERROR");
     }
 
   float scale = 1.5f;
@@ -228,17 +238,38 @@ Game::render_fini ()
 void
 Game::render_running ()
 {
-  SDL_SetRenderDrawColor (m_renderer, BLACK.r, BLACK.g, BLACK.b, BLACK.a);
-  SDL_RenderClear (m_renderer);
-  m_field.update ();
+  static const long tick_rate = 1000 / m_ticks_per_second;
+  static long accumulator = 0;
+
+  SDL_Time current_time;
+  if (!SDL_GetCurrentTime (&current_time))
+    {
+      sdl_exit_error ("SDL ERROR");
+    }
+
+  time_t current = SDL_NS_TO_MS (current_time),
+         previous = SDL_NS_TO_MS (m_time);
+  time_t frame_time = current - previous;
+
+  accumulator += frame_time;
+
+  while (accumulator >= tick_rate)
+    {
+      m_field.update ();
+      accumulator -= tick_rate;
+      SDL_SetRenderDrawColor (m_renderer, BLACK.r, BLACK.g, BLACK.b, BLACK.a);
+      SDL_RenderClear (m_renderer);
+
+      m_field.render (*m_renderer, m_height, m_width);
+      SDL_RenderPresent (m_renderer);
+    }
+
   if (!m_field.is_snake_alive ())
     {
       m_state = GameState::FINI;
       m_field.clear ();
-      return;
+      accumulator = 0;
     }
-  m_field.render (*m_renderer, m_height, m_width);
-  SDL_RenderPresent (m_renderer);
 }
 
 void

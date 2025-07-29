@@ -23,8 +23,8 @@ public:
   }
 
 private:
-  bool wall_collides ();
-  bool self_collides ();
+  bool wall_collides () const;
+  bool self_collides () const;
   void spawn_fruit ();
 
 private:

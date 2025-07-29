@@ -55,7 +55,7 @@ GameField::spawn_fruit ()
   do
     {
       x = std::rand () % m_side_length;
-      y = x;
+      y = std::rand () % m_side_length;
     }
   while (collides (x, y));
 
@@ -66,6 +66,9 @@ void
 GameField::render (SDL_Renderer &renderer, int window_height,
                    int window_width) const
 {
+  if(wall_collides()) {
+    return;
+  }
   SDL_FRect border;
   float diff = static_cast<float> (std::abs (window_height - window_width));
   border.x = window_width > window_height ? diff / 2 : 0;
@@ -95,8 +98,6 @@ GameField::render (SDL_Renderer &renderer, int window_height,
         }
     }
   SDL_SetRenderDrawColor (&renderer, GRAY.r, GRAY.g, GRAY.b, GRAY.a);
-  SDL_RenderRects (&renderer, gray_rects.data (),
-                   static_cast<int> (gray_rects.size ()));
   SDL_RenderFillRects (&renderer, gray_rects.data (),
                        static_cast<int> (gray_rects.size ()));
   m_snake.get_head ().render (renderer, border, m_side_length);
@@ -140,7 +141,7 @@ GameField::update ()
 }
 
 bool
-GameField::wall_collides ()
+GameField::wall_collides () const
 {
   auto &head = m_snake.get_head ();
   return head.get_x () < 0 || head.get_x () >= m_side_length
@@ -148,7 +149,7 @@ GameField::wall_collides ()
 }
 
 bool
-GameField::self_collides ()
+GameField::self_collides () const
 {
   auto &head = m_snake.get_head ();
   for (auto &part : m_snake.get_body ())

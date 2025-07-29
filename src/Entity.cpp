@@ -41,6 +41,5 @@ Entity::render (SDL_Renderer &renderer, const SDL_FRect &border,
   frect.y = m_point.y * cell_height + border.y;
   SDL_SetRenderDrawColor (&renderer, m_color.r, m_color.g, m_color.b,
                           m_color.a);
-  SDL_RenderRect (&renderer, &frect);
   SDL_RenderFillRect (&renderer, &frect);
 }
