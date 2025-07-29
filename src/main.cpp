@@ -1,5 +1,7 @@
 #include "Game.hpp"
 #include <SDL3/SDL_init.h>
+#include <exception>
+#include <iostream>
 
 #ifdef WIN32
 #include <Windows.h>
@@ -18,8 +20,20 @@ main (int argc, char *argv[])
 #ifdef WIN32
   FreeConsole ();
 #endif
-  Game game (NAME, WINDOW_WIDTH, WINDOW_HEIGHT, SDL_FLAGS, FONT_PATH,
-             FRAME_RATE);
-  game.run ();
-  return 0;
+  try
+    {
+      Game game (NAME, WINDOW_WIDTH, WINDOW_HEIGHT, SDL_FLAGS, FONT_PATH,
+                 FRAME_RATE);
+      game.run ();
+    }
+  catch (const std::exception &e)
+    {
+#ifdef WIN32
+      MessageBoxA (nullptr, e.what (), "FATAL ERROR", MB_OK | MB_ICONERROR);
+#else
+      std::cerr << "FATAL ERROR: " << e.what () << std::endl;
+#endif
+    return EXIT_FAILURE;
+    }
+  return EXIT_SUCCESS;
 }

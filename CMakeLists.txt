@@ -46,3 +46,7 @@ target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/include
 target_include_directories(${PROJECT_NAME} PRIVATE ${SDL3_SOURCE_DIR}/include)
 target_include_directories(${PROJECT_NAME} PRIVATE ${SDL3_ttf_SOURCE_DIR}/include)
 target_link_libraries(${PROJECT_NAME} PRIVATE SDL3-static SDL3_ttf-static)
+
+add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+  COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_LIST_DIR}/assets $<TARGET_FILE_DIR:${PROJECT_NAME}>
+)
