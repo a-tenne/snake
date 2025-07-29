@@ -19,7 +19,7 @@ Game::Game (std::string_view title, int width, int height,
             unsigned int sdl_flags, std::string_view font_path, int frame_rate)
     : m_width{ width }, m_height{ height }, m_running{ true },
       m_field {SIDE_LENGTH, NUM_FRUITS}, m_state{ GameState::START },
-      m_frame_rate{ frame_rate }
+      m_frame_rate{ frame_rate }, m_is_fullscreen{false}
 {
 #if defined(__clang__) || defined(__GNUC__)
   constexpr const char *fn_name = __PRETTY_FUNCTION__;
@@ -125,6 +125,12 @@ Game::handle_event (SDL_Event &event)
     case SDL_EVENT_WINDOW_RESIZED:
       SDL_GetWindowSize (m_window, &m_width, &m_height);
       break;
+    case SDL_EVENT_WINDOW_ENTER_FULLSCREEN:
+      m_is_fullscreen = true;
+      break;
+    case SDL_EVENT_WINDOW_LEAVE_FULLSCREEN:
+      m_is_fullscreen = false;
+      break;
     case SDL_EVENT_KEY_DOWN:
       switch (event.key.key)
         {
@@ -146,6 +152,9 @@ Game::handle_event (SDL_Event &event)
           break;
         case SDLK_ESCAPE:
           m_running = false;
+          break;
+        case SDLK_RETURN:
+          SDL_SetWindowFullscreen(m_window, !m_is_fullscreen);
           break;
         case SDLK_SPACE:
           switch (m_state)

@@ -24,7 +24,7 @@ private:
   TTF_Font *m_font = nullptr;
   GameField m_field;
   int m_width, m_height, m_frame_rate;
-  bool m_running;
+  bool m_running, m_is_fullscreen;
 
 private:
   void handle_event (SDL_Event &event);

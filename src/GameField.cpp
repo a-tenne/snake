@@ -1,6 +1,7 @@
 #include "GameField.hpp"
 #include "Fruit.hpp"
 #include "Point.hpp"
+#include "SDL3/SDL_rect.h"
 #include "SDL3/SDL_render.h"
 #include "SnakePart.hpp"
 #include <algorithm>
@@ -77,6 +78,30 @@ GameField::render (SDL_Renderer &renderer, int window_height,
   border.w = window_width > window_height ? window_width - diff : window_width;
   border.h
       = window_height > window_width ? window_height - diff : window_height;
+  float cell_width = Entity::calculate_dimension (border.w, m_side_length);
+  float cell_height = Entity::calculate_dimension (border.h, m_side_length);
+  float cell_size = std::min (cell_width, cell_height);
+
+  std::vector<SDL_FRect> gray_rects;
+  gray_rects.reserve ((m_side_length ^ 2) / 2);
+
+  for (int i : std::ranges::views::iota (0, m_side_length))
+    {
+      for (int j : std::ranges::views::iota (0, m_side_length))
+        {
+          if (i % 2 != j % 2)
+            {
+              float h = cell_size;
+              float w = cell_size;
+              float x = i * cell_width + border.x;
+              float y = j * cell_height + border.y;
+              gray_rects.emplace_back (x, y, w, h);
+            }
+        }
+    }
+  SDL_SetRenderDrawColor (&renderer, GRAY.r, GRAY.g, GRAY.b, GRAY.a);
+  SDL_RenderRects(&renderer, gray_rects.data(), static_cast<int>(gray_rects.size()));
+  SDL_RenderFillRects(&renderer, gray_rects.data(), static_cast<int>(gray_rects.size()));
   m_snake.get_head ().render (renderer, border, m_side_length);
   for (auto &part : m_snake.get_body ())
     {
@@ -121,8 +146,8 @@ bool
 GameField::wall_collides ()
 {
   auto &head = m_snake.get_head ();
-  return head.get_x () < 0 || head.get_x () >= m_side_length|| head.get_y () < 0
-         || head.get_y () >= m_side_length;
+  return head.get_x () < 0 || head.get_x () >= m_side_length
+         || head.get_y () < 0 || head.get_y () >= m_side_length;
 }
 
 bool
@@ -150,7 +175,8 @@ GameField::change_snake_direction (Direction dir)
       m_snake.set_direction (dir);
       return;
     }
-  if (auto it = opposites.find (dir);it != opposites.end ()
+  if (auto it = opposites.find (dir);
+      it != opposites.end ()
       && m_snake.get_head ().get_direction () != it->second)
     {
       m_snake.set_direction (dir);
@@ -160,7 +186,7 @@ GameField::change_snake_direction (Direction dir)
 void
 GameField::init ()
 {
-  for (int _ : std::ranges::views::iota(0,m_num_fruits))
+  for (int _ : std::ranges::views::iota (0, m_num_fruits))
     {
       spawn_fruit ();
     }
