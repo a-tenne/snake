@@ -20,12 +20,12 @@ Entity::render (SDL_Renderer &renderer, const SDL_FRect &border,
 {
   constexpr auto fn_name = pretty_fn_name ();
 
-  if (m_point.x < 0 || m_point.x >= side_length)
+  if (m_point.x < 0 || m_point.x >= side_length) [[unlikely]]
     {
       throw std::logic_error (std::format ("Invalid x coordinate in {}: {}\n",
                                            fn_name, m_point.x));
     }
-  if (m_point.y < 0 || m_point.y >= side_length)
+  if (m_point.y < 0 || m_point.y >= side_length) [[unlikely]]
     {
       throw std::logic_error (std::format ("Invalid y coordinate in {}: {}\n",
                                            fn_name, m_point.y));
@@ -45,6 +45,6 @@ Entity::render (SDL_Renderer &renderer, const SDL_FRect &border,
         && SDL_RenderFillRect (&renderer, &frect);
   if (!render_success) [[unlikely]]
     {
-      SDL_CUSTOM_ERR ();
+      sdl_exit_error();
     }
 }

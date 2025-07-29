@@ -4,8 +4,13 @@
 #include <stdexcept>
 
 void
-sdl_exit_error (const char *file_name, int line)
+sdl_exit_error ()
 {
-  throw std::runtime_error (std::format ("File {} on line {}: {}\n", file_name,
-                                         line, SDL_GetError ()));
+  throw std::runtime_error (std::format ("SDL ERROR {}\n",
+                                         SDL_GetError ()));
+}
+
+float calculate_dimension(int window_dimension, int field_dimension){
+  return static_cast<float> (window_dimension)
+         / static_cast<float> (field_dimension);
 }

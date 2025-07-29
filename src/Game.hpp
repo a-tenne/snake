@@ -23,9 +23,9 @@ private:
   SDL_Renderer *m_renderer = nullptr;
   TTF_Font *m_font = nullptr;
   GameField m_field;
-  int m_width, m_height;
+  int m_width, m_height, m_high_score = 0;
   const int m_tps, m_fps;
-  bool m_running, m_is_fullscreen;
+  bool m_running = true, m_is_fullscreen = false;
   SDL_Time m_time;
 
 private:
@@ -33,5 +33,6 @@ private:
   void render_start ();
   void render_running ();
   void render_fini ();
-  void render_text_fields (const char *field1, const char *field2);
+  bool render_high_score();
+  void render_text_fields (std::string_view field1, std::string_view field2, bool show_high_score);
 };

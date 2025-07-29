@@ -104,7 +104,7 @@ GameField::render (SDL_Renderer &renderer, int window_height,
                                 static_cast<int> (gray_rects.size ()));
   if (!render_success) [[unlikely]]
     {
-      SDL_CUSTOM_ERR ();
+      sdl_exit_error ();
     }
   m_snake.get_head ().render (renderer, border, m_side_length);
   for (auto &part : m_snake.get_body ())
@@ -120,7 +120,7 @@ GameField::render (SDL_Renderer &renderer, int window_height,
                    && SDL_RenderRect (&renderer, &border);
   if (!render_success) [[unlikely]]
     {
-      SDL_CUSTOM_ERR ();
+      sdl_exit_error ();
     }
 }
 

@@ -14,7 +14,7 @@ constexpr const char *FONT_PATH = "assets/Pixellettersfull-BnJ5.ttf";
 #endif
 
 constexpr const char *NAME = "Snake";
-constexpr int WINDOW_WIDTH = 700;
+constexpr int WINDOW_WIDTH = 1000;
 constexpr int WINDOW_HEIGHT = 700;
 constexpr unsigned int SDL_FLAGS = SDL_INIT_VIDEO;
 constexpr int FRAME_RATE = 60;
@@ -32,12 +32,12 @@ main (int argc, char *argv[])
 #endif
   try
     {
-      if (argc < 1)
+      if (argc < 1) [[unlikely]]
         {
           throw std::invalid_argument ("Program startup path unavailable.");
         }
       std::string path (argv[0]);
-      if (!path.contains (separator))
+      if (!path.contains (separator)) [[unlikely]]
         {
           throw std::invalid_argument (
               std::format ("Malformed program startup path: {}",

@@ -1,19 +1,20 @@
 #include "Game.hpp"
+#include "SDL3/SDL_render.h"
 #include "SnakePart.hpp"
 #include "util.hpp"
 #include <ctime>
 #include <format>
 #include <stdexcept>
+#include <string_view>
 
-constexpr int SIDE_LENGTH = 35;
+constexpr int SIDE_LENGTH = 25;
 constexpr int NUM_FRUITS = 4;
 
 Game::Game (std::string_view title, int width, int height,
             unsigned int sdl_flags, std::string_view font_path, int tps,
             int fps)
-    : m_width{ width }, m_height{ height }, m_running{ true },
-      m_field{ SIDE_LENGTH, NUM_FRUITS }, m_state{ GameState::START },
-      m_tps{ tps }, m_fps{ fps }, m_is_fullscreen{ false }
+    : m_width{ width }, m_height{ height }, m_field{ SIDE_LENGTH, NUM_FRUITS },
+      m_state{ GameState::START }, m_tps{ tps }, m_fps{ fps }
 {
   constexpr auto fn_name = pretty_fn_name ();
   constexpr auto int_gt_zero = [fn_name] (int arg_val, const char *arg_name) {
@@ -36,13 +37,13 @@ Game::Game (std::string_view title, int width, int height,
         && SDL_GetCurrentTime (&m_time);
   if (!sdl_correct_init) [[unlikely]]
     {
-      SDL_CUSTOM_ERR ();
+      sdl_exit_error ();
     }
 
   if (m_font = TTF_OpenFont (font_path.data (), 60); m_font == nullptr)
       [[unlikely]]
     {
-      SDL_CUSTOM_ERR ();
+      sdl_exit_error ();
     }
   std::srand (static_cast<unsigned int> (std::time (nullptr)));
 }
@@ -104,7 +105,7 @@ Game::run ()
       if (m_state != GameState::RUNNING && !SDL_GetCurrentTime (&m_time))
           [[unlikely]]
         {
-          SDL_CUSTOM_ERR ();
+          sdl_exit_error ();
         }
       SDL_Delay (frame_rate_ms);
     }
@@ -173,17 +174,53 @@ Game::handle_event (SDL_Event &event)
     }
 }
 
+bool
+Game::render_high_score ()
+{
+  static int last_high_score = -1;
+  static std::string text;
+  if (last_high_score != m_high_score)
+    {
+      last_high_score = m_high_score;
+      text = std::format ("High Score: {}", last_high_score);
+    }
+  SDL_Color white = { 255, 255, 255, SDL_ALPHA_OPAQUE };
+  std::unique_ptr<SDL_Surface, void (*) (SDL_Surface *)> surface (
+      TTF_RenderText_Solid (m_font, text.data (), 0, white),
+      SDL_DestroySurface);
+  if (surface == nullptr) [[unlikely]]
+    {
+      sdl_exit_error ();
+    }
+  std::unique_ptr<SDL_Texture, void (*) (SDL_Texture *)> texture (
+      SDL_CreateTextureFromSurface (m_renderer, surface.get ()),
+      SDL_DestroyTexture);
+  if (texture == nullptr) [[unlikely]]
+    {
+      sdl_exit_error ();
+    }
+  float scale = 0.5;
+  SDL_FRect rect1 = { .x = 0,
+                      .y = 0,
+                      .w = static_cast<float> (surface->w * scale),
+                      .h = static_cast<float> (surface->h * scale) };
+  return SDL_RenderTexture (m_renderer, texture.get (), nullptr, &rect1);
+}
+
 void
-Game::render_text_fields (const char *field1, const char *field2)
+Game::render_text_fields (std::string_view field1, std::string_view field2,
+                          bool show_high_score)
 {
   SDL_Color white = { 255, 255, 255, SDL_ALPHA_OPAQUE };
   std::unique_ptr<SDL_Surface, void (*) (SDL_Surface *)> surface1 (
-      TTF_RenderText_Solid (m_font, field1, 0, white), SDL_DestroySurface);
+      TTF_RenderText_Solid (m_font, field1.data (), 0, white),
+      SDL_DestroySurface);
   std::unique_ptr<SDL_Surface, void (*) (SDL_Surface *)> surface2 (
-      TTF_RenderText_Solid (m_font, field2, 0, white), SDL_DestroySurface);
+      TTF_RenderText_Solid (m_font, field2.data (), 0, white),
+      SDL_DestroySurface);
   if (surface1 == nullptr || surface2 == nullptr) [[unlikely]]
     {
-      SDL_CUSTOM_ERR ();
+      sdl_exit_error ();
     }
   std::unique_ptr<SDL_Texture, void (*) (SDL_Texture *)> texture1 (
       SDL_CreateTextureFromSurface (m_renderer, surface1.get ()),
@@ -193,7 +230,7 @@ Game::render_text_fields (const char *field1, const char *field2)
       SDL_DestroyTexture);
   if (texture1 == nullptr || texture2 == nullptr) [[unlikely]]
     {
-      SDL_CUSTOM_ERR ();
+      sdl_exit_error ();
     }
 
   float scale = 1.5f;
@@ -210,24 +247,34 @@ Game::render_text_fields (const char *field1, const char *field2)
       = SDL_SetRenderDrawColor (m_renderer, BLACK.r, BLACK.g, BLACK.b, BLACK.a)
         && SDL_RenderClear (m_renderer)
         && SDL_RenderTexture (m_renderer, texture1.get (), nullptr, &rect1)
-        && SDL_RenderTexture (m_renderer, texture2.get (), nullptr, &rect2)
-        && SDL_RenderPresent (m_renderer);
+        && SDL_RenderTexture (m_renderer, texture2.get (), nullptr, &rect2);
   if (!render_success) [[unlikely]]
     {
-      SDL_CUSTOM_ERR ();
+      sdl_exit_error ();
+    }
+  if (show_high_score && !render_high_score ()) [[unlikely]]
+    {
+      sdl_exit_error ();
+    }
+  if (!SDL_RenderPresent (m_renderer)) [[unlikely]]
+    {
+      sdl_exit_error ();
     }
 }
 
 void
 Game::render_start ()
 {
-  render_text_fields ("Welcome to Snake", "Press Space to start");
+  constexpr bool SHOW_HIGH_SCORE = false;
+  render_text_fields ("Welcome to Snake", "Press Space to start",
+                      SHOW_HIGH_SCORE);
 }
 
 void
 Game::render_fini ()
 {
-  render_text_fields ("Game Over", "Press Space to go again");
+  constexpr bool SHOW_HIGH_SCORE = true;
+  render_text_fields ("Game Over", "Press Space to go again", SHOW_HIGH_SCORE);
 }
 
 void
@@ -239,13 +286,18 @@ Game::render_running ()
   SDL_Time current_time;
   if (!SDL_GetCurrentTime (&current_time)) [[unlikely]]
     {
-      SDL_CUSTOM_ERR ();
+      sdl_exit_error ();
     }
 
   time_t current = SDL_NS_TO_MS (current_time),
          previous = SDL_NS_TO_MS (m_time);
   time_t frame_time = current - previous;
   m_time = current_time;
+
+  if (int field_score = m_field.get_score (); m_high_score < field_score)
+    {
+      m_high_score = m_field.get_score ();
+    }
 
   accumulator += frame_time;
 
@@ -260,13 +312,13 @@ Game::render_running ()
 
   if (!render_success) [[unlikely]]
     {
-      SDL_CUSTOM_ERR ();
+      sdl_exit_error ();
     }
 
   m_field.render (*m_renderer, m_height, m_width);
-  if (!SDL_RenderPresent (m_renderer)) [[unlikely]]
+  if (!render_high_score () || !SDL_RenderPresent (m_renderer)) [[unlikely]]
     {
-      SDL_CUSTOM_ERR ();
+      sdl_exit_error ();
     }
   if (!m_field.is_snake_alive ())
     {

@@ -33,7 +33,7 @@ SnakePart::move ()
     case Direction::RIGHT:
       m_point.x += 1;
       break;
-    default:
+    [[unlikely]] default:
       throw std::logic_error (
           std::format ("Invalid direction in {}\n", fn_name));
     }

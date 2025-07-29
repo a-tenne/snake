@@ -22,6 +22,11 @@ public:
     return m_snake_alive;
   }
 
+  inline int
+  get_score() const {
+    return static_cast<int>(m_snake.get_body().size());
+  }
+
 private:
   bool wall_collides () const;
   bool self_collides () const;
