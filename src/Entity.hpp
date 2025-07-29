@@ -11,7 +11,6 @@ public:
   void render (SDL_Renderer &renderer, const SDL_FRect &border,
                int side_length) const;
   bool collides (const Entity &other) const;
-  bool in_bounds ();
 
   inline int
   get_x () const

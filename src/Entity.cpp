@@ -39,7 +39,12 @@ Entity::render (SDL_Renderer &renderer, const SDL_FRect &border,
   frect.w = cell_size;
   frect.x = m_point.x * cell_width + border.x;
   frect.y = m_point.y * cell_height + border.y;
-  SDL_SetRenderDrawColor (&renderer, m_color.r, m_color.g, m_color.b,
-                          m_color.a);
-  SDL_RenderFillRect (&renderer, &frect);
+  bool render_success
+      = SDL_SetRenderDrawColor (&renderer, m_color.r, m_color.g, m_color.b,
+                                m_color.a)
+        && SDL_RenderFillRect (&renderer, &frect);
+  if (!render_success) [[unlikely]]
+    {
+      SDL_CUSTOM_ERR ();
+    }
 }

@@ -3,7 +3,6 @@
 #include "GameField.hpp"
 #include "SDL3_ttf/SDL_ttf.h"
 #include <SDL3/SDL.h>
-#include <SDL3/SDL_main.h>
 #include <string_view>
 class Game
 {
@@ -35,5 +34,4 @@ private:
   void render_running ();
   void render_fini ();
   void render_text_fields (const char *field1, const char *field2);
-  void sdl_exit_error (std::string_view error_msg);
 };

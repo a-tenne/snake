@@ -7,11 +7,11 @@
 #include "util.hpp"
 #include <algorithm>
 #include <cstdlib>
+#include <flat_map>
 #include <format>
 #include <memory>
 #include <ranges>
 #include <stdexcept>
-#include <unordered_map>
 
 GameField::GameField (int side_length, int num_fruits)
     : m_side_length{ side_length }, m_snake_alive{ false },
@@ -98,9 +98,14 @@ GameField::render (SDL_Renderer &renderer, int window_height,
             }
         }
     }
-  SDL_SetRenderDrawColor (&renderer, GRAY.r, GRAY.g, GRAY.b, GRAY.a);
-  SDL_RenderFillRects (&renderer, gray_rects.data (),
-                       static_cast<int> (gray_rects.size ()));
+  bool render_success
+      = SDL_SetRenderDrawColor (&renderer, GRAY.r, GRAY.g, GRAY.b, GRAY.a)
+        && SDL_RenderFillRects (&renderer, gray_rects.data (),
+                                static_cast<int> (gray_rects.size ()));
+  if (!render_success) [[unlikely]]
+    {
+      SDL_CUSTOM_ERR ();
+    }
   m_snake.get_head ().render (renderer, border, m_side_length);
   for (auto &part : m_snake.get_body ())
     {
@@ -110,8 +115,13 @@ GameField::render (SDL_Renderer &renderer, int window_height,
     {
       entity->render (renderer, border, m_side_length);
     }
-  SDL_SetRenderDrawColor (&renderer, YELLOW.r, YELLOW.g, YELLOW.b, YELLOW.a);
-  SDL_RenderRect (&renderer, &border);
+  render_success = SDL_SetRenderDrawColor (&renderer, YELLOW.r, YELLOW.g,
+                                           YELLOW.b, YELLOW.a)
+                   && SDL_RenderRect (&renderer, &border);
+  if (!render_success) [[unlikely]]
+    {
+      SDL_CUSTOM_ERR ();
+    }
 }
 
 void
@@ -164,7 +174,7 @@ GameField::self_collides () const
 void
 GameField::change_snake_direction (Direction dir)
 {
-  static std::unordered_map<Direction, Direction> opposites
+  static std::flat_map<Direction, Direction> opposites
       = { { Direction::LEFT, Direction::RIGHT },
           { Direction::RIGHT, Direction::LEFT },
           { Direction::UP, Direction::DOWN },
