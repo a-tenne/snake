@@ -13,10 +13,11 @@ enum class Direction
   INVALID
 };
 
-class SnakePart : public Entity {
+class SnakePart : public Entity
+{
 public:
-  SnakePart(); // this will have invalid state
-  SnakePart(int x, int y, Direction dir);
+  SnakePart (); // this will have invalid state
+  SnakePart (int x, int y, Direction dir);
   inline Direction
   get_direction () const
   {
@@ -24,11 +25,13 @@ public:
   }
 
   inline void
-  set_direction(Direction dir) {
+  set_direction (Direction dir)
+  {
     m_direction = dir;
   }
 
-  void move();
+  void move ();
+
 private:
   Direction m_direction;
 };

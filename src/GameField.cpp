@@ -4,34 +4,29 @@
 #include "SDL3/SDL_rect.h"
 #include "SDL3/SDL_render.h"
 #include "SnakePart.hpp"
+#include "util.hpp"
 #include <algorithm>
 #include <cstdlib>
+#include <format>
 #include <memory>
 #include <ranges>
 #include <stdexcept>
-#include <string>
 #include <unordered_map>
 
 GameField::GameField (int side_length, int num_fruits)
     : m_side_length{ side_length }, m_snake_alive{ false },
       m_num_fruits{ num_fruits }
 {
-#if defined(__clang__) || defined(__GNUC__)
-  constexpr const char *fn_name = __PRETTY_FUNCTION__;
-#elif defined(_MSC_VER)
-  constexpr const char *fn_name = __FUNCSIG__;
-#endif
+  constexpr auto fn_name = pretty_fn_name ();
   if (side_length <= 0)
     {
-      throw std::invalid_argument (std::string ("Invalid width passed to ")
-                                   + fn_name + ": "
-                                   + std::to_string (side_length));
+      throw std::invalid_argument (std::format (
+          "Invalid width passed to {}: {}\n", fn_name, side_length));
     }
   if (num_fruits <= 0)
     {
-      throw std::invalid_argument (
-          std::string ("Invalid number of fruits passed to ") + fn_name + ": "
-          + std::to_string (num_fruits));
+      throw std::invalid_argument (std::format (
+          "Invalid number of fruits passed to {}: {}\n", fn_name, num_fruits));
     }
 }
 
@@ -78,8 +73,8 @@ GameField::render (SDL_Renderer &renderer, int window_height,
   border.w = window_width > window_height ? window_width - diff : window_width;
   border.h
       = window_height > window_width ? window_height - diff : window_height;
-  float cell_width = Entity::calculate_dimension (border.w, m_side_length);
-  float cell_height = Entity::calculate_dimension (border.h, m_side_length);
+  float cell_width = calculate_dimension (border.w, m_side_length);
+  float cell_height = calculate_dimension (border.h, m_side_length);
   float cell_size = std::min (cell_width, cell_height);
 
   std::vector<SDL_FRect> gray_rects;
@@ -100,8 +95,10 @@ GameField::render (SDL_Renderer &renderer, int window_height,
         }
     }
   SDL_SetRenderDrawColor (&renderer, GRAY.r, GRAY.g, GRAY.b, GRAY.a);
-  SDL_RenderRects(&renderer, gray_rects.data(), static_cast<int>(gray_rects.size()));
-  SDL_RenderFillRects(&renderer, gray_rects.data(), static_cast<int>(gray_rects.size()));
+  SDL_RenderRects (&renderer, gray_rects.data (),
+                   static_cast<int> (gray_rects.size ()));
+  SDL_RenderFillRects (&renderer, gray_rects.data (),
+                       static_cast<int> (gray_rects.size ()));
   m_snake.get_head ().render (renderer, border, m_side_length);
   for (auto &part : m_snake.get_body ())
     {
@@ -195,6 +192,9 @@ GameField::init ()
 
   int dir_num = std::rand () % 4;
   Direction dir;
+
+  constexpr auto fn_name = pretty_fn_name ();
+
   switch (dir_num)
     {
     case 0:
@@ -210,10 +210,11 @@ GameField::init ()
       dir = Direction::RIGHT;
       break;
     default:
-      throw std::logic_error ("Invalid Direction in GameField constructor\n");
+      throw std::logic_error (
+          std::format ("Invalid direction in {}\n", fn_name));
       break;
     }
-  m_snake = Snake{ x_snake, y_snake, dir };
+  m_snake = Snake (x_snake, y_snake, dir);
   m_snake_alive = true;
 }
 void

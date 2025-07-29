@@ -1,8 +1,8 @@
 #pragma once
 
+#include "Color.hpp"
 #include "Point.hpp"
 #include "SDL3/SDL_render.h"
-#include "Color.hpp"
 
 class Entity
 {
@@ -26,24 +26,21 @@ public:
   }
 
   inline const Point &
-  get_point() const {
+  get_point () const
+  {
     return m_point;
   }
 
   inline void
-  set_x(int x) {
+  set_x (int x)
+  {
     m_point.x = x;
   }
 
   inline void
-  set_y(int y) {
-    m_point.y = y;
-  }
-
-  inline static float
-  calculate_dimension (int window_dimension, int field_dimension)
+  set_y (int y)
   {
-    return static_cast<float>(window_dimension) / field_dimension;
+    m_point.y = y;
   }
 
 protected:

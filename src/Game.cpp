@@ -8,9 +8,10 @@
 #include "SDL3/SDL_video.h"
 #include "SDL3_ttf/SDL_ttf.h"
 #include "SnakePart.hpp"
+#include "util.hpp"
 #include <ctime>
+#include <format>
 #include <stdexcept>
-#include <string>
 
 constexpr int SIDE_LENGTH = 35;
 constexpr int NUM_FRUITS = 4;
@@ -18,30 +19,25 @@ constexpr int NUM_FRUITS = 4;
 Game::Game (std::string_view title, int width, int height,
             unsigned int sdl_flags, std::string_view font_path, int frame_rate)
     : m_width{ width }, m_height{ height }, m_running{ true },
-      m_field {SIDE_LENGTH, NUM_FRUITS}, m_state{ GameState::START },
-      m_frame_rate{ frame_rate }, m_is_fullscreen{false}
+      m_field{ SIDE_LENGTH, NUM_FRUITS }, m_state{ GameState::START },
+      m_frame_rate{ frame_rate }, m_is_fullscreen{ false }
 {
-#if defined(__clang__) || defined(__GNUC__)
-  constexpr const char *fn_name = __PRETTY_FUNCTION__;
-#elif defined(_MSC_VER)
-  constexpr const char *fn_name = __FUNCSIG__;
-#endif
+  constexpr auto fn_name = pretty_fn_name ();
+
   if (width <= 0)
     {
-      throw std::invalid_argument (std::string ("Window width <= 0 passed to ")
-                                   + fn_name + ": " + std::to_string (width));
+      throw std::invalid_argument (std::format (
+          "Window width <= 0 passed to {}: {}\n", fn_name, width));
     }
   if (height <= 0)
     {
-      throw std::invalid_argument (
-          std::string ("Window height <= 0 passed to ") + fn_name + ": "
-          + std::to_string (height));
+      throw std::invalid_argument (std::format (
+          "Window height <= 0 passed to {}: {}\n", fn_name, height));
     }
   if (frame_rate <= 0)
     {
-      throw std::invalid_argument (std::string ("Frame rate <= 0 passed to ")
-                                   + fn_name + ": "
-                                   + std::to_string (frame_rate));
+      throw std::invalid_argument (std::format (
+          "Frame rate <= 0 passed to {}: {}\n", fn_name, frame_rate));
     }
   if (!SDL_Init (sdl_flags)
       || !SDL_CreateWindowAndRenderer (title.data (), width, height,
@@ -51,7 +47,7 @@ Game::Game (std::string_view title, int width, int height,
     {
       sdl_exit_error ("SDL ERROR: ");
     }
-  
+
   if (m_font = TTF_OpenFont (font_path.data (), 60); m_font == nullptr)
     {
       sdl_exit_error ("TTF ERROR: ");
@@ -154,7 +150,7 @@ Game::handle_event (SDL_Event &event)
           m_running = false;
           break;
         case SDLK_RETURN:
-          SDL_SetWindowFullscreen(m_window, !m_is_fullscreen);
+          SDL_SetWindowFullscreen (m_window, !m_is_fullscreen);
           break;
         case SDLK_SPACE:
           switch (m_state)
@@ -246,7 +242,8 @@ Game::render_running ()
 }
 
 void
-Game::sdl_exit_error (const std::string &error_msg)
+Game::sdl_exit_error (std::string_view error_msg)
 {
-  throw std::runtime_error (error_msg + SDL_GetError () + "\n");
+  throw std::runtime_error (
+      std::format ("{}: {}\n", error_msg, SDL_GetError ()));
 }

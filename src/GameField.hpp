@@ -12,10 +12,9 @@ public:
   void update ();
   void render (SDL_Renderer &renderer, int window_height,
                int window_width) const;
-  void
-  change_snake_direction (Direction dir);
-  void init();
-  void clear();
+  void change_snake_direction (Direction dir);
+  void init ();
+  void clear ();
 
   inline bool
   is_snake_alive () const
@@ -25,7 +24,7 @@ public:
 
 private:
   bool wall_collides ();
-  bool self_collides();
+  bool self_collides ();
   void spawn_fruit ();
 
 private:

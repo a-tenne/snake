@@ -5,16 +5,17 @@
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_main.h>
 #include <string_view>
-#include <string>
 class Game
 {
 public:
-  Game (std::string_view title, int width, int height, unsigned int sdl_flags, std::string_view font_path, int frame_rate);
+  Game (std::string_view title, int width, int height, unsigned int sdl_flags,
+        std::string_view font_path, int frame_rate);
   ~Game ();
   void run ();
 
 private:
-  enum class GameState {
+  enum class GameState
+  {
     START,
     RUNNING,
     FINI
@@ -28,9 +29,9 @@ private:
 
 private:
   void handle_event (SDL_Event &event);
-  void render_start();
-  void render_running();
-  void render_fini();
-  void render_text_fields(const char *field1, const char *field2);
-  void sdl_exit_error(const std::string &error_msg);
+  void render_start ();
+  void render_running ();
+  void render_fini ();
+  void render_text_fields (const char *field1, const char *field2);
+  void sdl_exit_error (std::string_view error_msg);
 };

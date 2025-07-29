@@ -1,7 +1,8 @@
 #include "Entity.hpp"
+#include "util.hpp"
 #include <algorithm>
+#include <format>
 #include <stdexcept>
-#include <string>
 
 Entity::Entity (int x, int y, Color color) : m_point{ x, y }, m_color (color)
 {
@@ -17,18 +18,18 @@ void
 Entity::render (SDL_Renderer &renderer, const SDL_FRect &border,
                 int side_length) const
 {
-  #if defined(__clang__) || defined(__GNUC__)
-    constexpr const char *fn_name = __PRETTY_FUNCTION__;
-  #elif defined(_MSC_VER)
-    constexpr const char *fn_name = __FUNCSIG__;
-  #endif
+  constexpr auto fn_name = pretty_fn_name ();
 
-  if(m_point.x < 0 || m_point.x >= side_length) {
-    throw std::logic_error(std::string("Invalid x coordinate in ") + fn_name + ": " + std::to_string(m_point.x));
-  }
-  if(m_point.y < 0 || m_point.y >= side_length) {
-    throw std::logic_error((std::string("Invalid y coordinate in ") + fn_name + ": " + std::to_string(m_point.y)));
-  }
+  if (m_point.x < 0 || m_point.x >= side_length)
+    {
+      throw std::logic_error (std::format ("Invalid x coordinate in {}: {}\n",
+                                           fn_name, m_point.x));
+    }
+  if (m_point.y < 0 || m_point.y >= side_length)
+    {
+      throw std::logic_error (std::format ("Invalid y coordinate in {}: {}\n",
+                                           fn_name, m_point.y));
+    }
   float cell_width = calculate_dimension (border.w, side_length);
   float cell_height = calculate_dimension (border.h, side_length);
   float cell_size = std::min (cell_width, cell_height);

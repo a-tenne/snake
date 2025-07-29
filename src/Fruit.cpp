@@ -1,5 +1,3 @@
 #include "Fruit.hpp"
 
-
-Fruit::Fruit (int x, int y): Entity{x,y,RED} {}
-
+Fruit::Fruit (int x, int y) : Entity{ x, y, RED } {}
