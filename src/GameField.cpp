@@ -7,11 +7,11 @@
 #include "util.hpp"
 #include <algorithm>
 #include <cstdlib>
-#include <flat_map>
 #include <format>
 #include <memory>
 #include <ranges>
 #include <stdexcept>
+#include <unordered_map>
 
 GameField::GameField (int side_length, int num_fruits)
     : m_side_length{ side_length }, m_snake_alive{ false },
@@ -174,7 +174,7 @@ GameField::self_collides () const
 void
 GameField::change_snake_direction (Direction dir)
 {
-  static std::flat_map<Direction, Direction> opposites
+  static std::unordered_map<Direction, Direction> opposites
       = { { Direction::LEFT, Direction::RIGHT },
           { Direction::RIGHT, Direction::LEFT },
           { Direction::UP, Direction::DOWN },
