@@ -44,7 +44,7 @@ GameField::spawn_fruit ()
     {
       entity_coords.push_back (&part.get_point ());
     }
-  auto collides = [entity_coords] (int x, int y) {
+  const auto collides = [entity_coords] (int x, int y) {
     return std::find_if (entity_coords.begin (), entity_coords.end (),
                          [x, y] (const Point *p) {
                            return p != nullptr && p->x == x && p->y == y;
@@ -66,9 +66,10 @@ void
 GameField::render (SDL_Renderer &renderer, int window_height,
                    int window_width) const
 {
-  if(wall_collides()) {
-    return;
-  }
+  if (wall_collides ())
+    {
+      return;
+    }
   SDL_FRect border;
   float diff = static_cast<float> (std::abs (window_height - window_width));
   border.x = window_width > window_height ? diff / 2 : 0;

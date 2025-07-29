@@ -9,7 +9,7 @@ class Game
 {
 public:
   Game (std::string_view title, int width, int height, unsigned int sdl_flags,
-        std::string_view font_path, int ticks_per_second);
+        std::string_view font_path, int fps, int tps);
   ~Game ();
   void run ();
 
@@ -25,7 +25,7 @@ private:
   TTF_Font *m_font = nullptr;
   GameField m_field;
   int m_width, m_height;
-  const int m_ticks_per_second;
+  const int m_tps, m_fps;
   bool m_running, m_is_fullscreen;
   SDL_Time m_time;
 

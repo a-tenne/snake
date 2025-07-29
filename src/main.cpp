@@ -17,7 +17,7 @@ constexpr const char *NAME = "Snake";
 constexpr int WINDOW_WIDTH = 700;
 constexpr int WINDOW_HEIGHT = 700;
 constexpr unsigned int SDL_FLAGS = SDL_INIT_VIDEO;
-
+constexpr int FRAME_RATE = 60;
 constexpr int TICKS_PER_SECOND = 7;
 
 int
@@ -45,7 +45,7 @@ main (int argc, char *argv[])
         }
       path = path.erase (path.find_last_of (separator) + 1);
       Game game (NAME, WINDOW_WIDTH, WINDOW_HEIGHT, SDL_FLAGS,
-                 path + FONT_PATH, TICKS_PER_SECOND);
+                 path + FONT_PATH, TICKS_PER_SECOND, FRAME_RATE);
       game.run ();
     }
   catch (const std::exception &e)

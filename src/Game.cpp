@@ -19,37 +19,31 @@ constexpr int SIDE_LENGTH = 35;
 constexpr int NUM_FRUITS = 4;
 
 Game::Game (std::string_view title, int width, int height,
-            unsigned int sdl_flags, std::string_view font_path,
-            int ticks_per_second)
+            unsigned int sdl_flags, std::string_view font_path, int tps,
+            int fps)
     : m_width{ width }, m_height{ height }, m_running{ true },
       m_field{ SIDE_LENGTH, NUM_FRUITS }, m_state{ GameState::START },
-      m_ticks_per_second{ ticks_per_second }, m_is_fullscreen{ false }
+      m_tps{ tps }, m_fps{ fps }, m_is_fullscreen{ false }
 {
   constexpr auto fn_name = pretty_fn_name ();
+  constexpr auto int_gt_zero = [fn_name] (int arg_val, const char *arg_name) {
+    if (arg_val <= 0)
+      {
+        throw std::invalid_argument (std::format ("{} <= 0 passed to {}: {}\n",
+                                                  arg_name, fn_name, arg_val));
+      }
+  };
+  int_gt_zero (width, "Window width");
+  int_gt_zero (height, "Window height");
+  int_gt_zero (tps, "TPS");
+  int_gt_zero (fps, "FPS");
 
-  if (width <= 0)
-    {
-      throw std::invalid_argument (std::format (
-          "Window width <= 0 passed to {}: {}\n", fn_name, width));
-    }
-  if (height <= 0)
-    {
-      throw std::invalid_argument (std::format (
-          "Window height <= 0 passed to {}: {}\n", fn_name, height));
-    }
-  if (ticks_per_second <= 0)
-    {
-      throw std::invalid_argument (
-          std::format ("Ticks per second <= 0 passed to {}: {}\n", fn_name,
-                       ticks_per_second));
-    }
   const bool sdl_correct_init
       = SDL_Init (sdl_flags) && TTF_Init ()
         && SDL_CreateWindowAndRenderer (title.data (), width, height,
                                         SDL_WINDOW_RESIZABLE, &m_window,
                                         &m_renderer)
-        && SDL_GetCurrentTime (&m_time)
-        && SDL_SetRenderVSync (m_renderer, SDL_RENDERER_VSYNC_ADAPTIVE);
+        && SDL_GetCurrentTime (&m_time);
   if (!sdl_correct_init)
     {
       sdl_exit_error ("SDL ERROR");
@@ -78,17 +72,15 @@ Game::run ()
   while (m_running)
     {
       int old_height = m_height, old_width = m_width;
-      if (!SDL_GetCurrentTime (&m_time))
-        {
-          sdl_exit_error ("SDL ERROR");
-        }
       SDL_Event event;
       while (SDL_PollEvent (&event))
         {
           handle_event (event);
         }
       if (!m_running)
-        return;
+        {
+          return;
+        }
       if (old_height != m_height || old_width != m_width)
         {
           text_rendered_once = false;
@@ -117,6 +109,11 @@ Game::run ()
             }
           break;
         }
+      if (m_state != GameState::RUNNING && !SDL_GetCurrentTime (&m_time))
+        {
+          sdl_exit_error ("SDL ERROR");
+        }
+      SDL_Delay (1000 / m_fps);
     }
 }
 
@@ -238,7 +235,7 @@ Game::render_fini ()
 void
 Game::render_running ()
 {
-  static const long tick_rate = 1000 / m_ticks_per_second;
+  static const long tick_rate_ms = 1000 / m_tps;
   static long accumulator = 0;
 
   SDL_Time current_time;
@@ -250,20 +247,21 @@ Game::render_running ()
   time_t current = SDL_NS_TO_MS (current_time),
          previous = SDL_NS_TO_MS (m_time);
   time_t frame_time = current - previous;
+  m_time = current_time;
 
   accumulator += frame_time;
 
-  while (accumulator >= tick_rate)
+  while (accumulator >= tick_rate_ms)
     {
       m_field.update ();
-      accumulator -= tick_rate;
-      SDL_SetRenderDrawColor (m_renderer, BLACK.r, BLACK.g, BLACK.b, BLACK.a);
-      SDL_RenderClear (m_renderer);
-
-      m_field.render (*m_renderer, m_height, m_width);
-      SDL_RenderPresent (m_renderer);
+      accumulator -= tick_rate_ms;
     }
 
+  SDL_SetRenderDrawColor (m_renderer, BLACK.r, BLACK.g, BLACK.b, BLACK.a);
+  SDL_RenderClear (m_renderer);
+
+  m_field.render (*m_renderer, m_height, m_width);
+  SDL_RenderPresent (m_renderer);
   if (!m_field.is_snake_alive ())
     {
       m_state = GameState::FINI;
