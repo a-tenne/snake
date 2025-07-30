@@ -35,6 +35,6 @@ SnakePart::move ()
       break;
     [[unlikely]] default:
       throw std::logic_error (
-          std::format ("Invalid direction in {}\n", fn_name));
+          std::format ("Invalid direction in {}", fn_name));
     }
 }

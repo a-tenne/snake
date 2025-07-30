@@ -23,8 +23,9 @@ public:
   }
 
   inline int
-  get_score() const {
-    return static_cast<int>(m_snake.get_body().size());
+  get_score () const
+  {
+    return static_cast<int> (m_snake.get_body ().size ());
   }
 
 private:

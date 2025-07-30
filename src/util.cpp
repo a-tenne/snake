@@ -6,11 +6,12 @@
 void
 sdl_exit_error ()
 {
-  throw std::runtime_error (std::format ("SDL ERROR {}\n",
-                                         SDL_GetError ()));
+  throw std::runtime_error (std::format ("SDL ERROR {}", SDL_GetError ()));
 }
 
-float calculate_dimension(int window_dimension, int field_dimension){
+float
+calculate_dimension (int window_dimension, int field_dimension)
+{
   return static_cast<float> (window_dimension)
          / static_cast<float> (field_dimension);
 }

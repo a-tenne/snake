@@ -22,13 +22,13 @@ Entity::render (SDL_Renderer &renderer, const SDL_FRect &border,
 
   if (m_point.x < 0 || m_point.x >= side_length) [[unlikely]]
     {
-      throw std::logic_error (std::format ("Invalid x coordinate in {}: {}\n",
-                                           fn_name, m_point.x));
+      throw std::logic_error (
+          std::format ("Invalid x coordinate in {}: {}", fn_name, m_point.x));
     }
   if (m_point.y < 0 || m_point.y >= side_length) [[unlikely]]
     {
-      throw std::logic_error (std::format ("Invalid y coordinate in {}: {}\n",
-                                           fn_name, m_point.y));
+      throw std::logic_error (
+          std::format ("Invalid y coordinate in {}: {}", fn_name, m_point.y));
     }
   float cell_width = calculate_dimension (border.w, side_length);
   float cell_height = calculate_dimension (border.h, side_length);
@@ -45,6 +45,6 @@ Entity::render (SDL_Renderer &renderer, const SDL_FRect &border,
         && SDL_RenderFillRect (&renderer, &frect);
   if (!render_success) [[unlikely]]
     {
-      sdl_exit_error();
+      sdl_exit_error ();
     }
 }

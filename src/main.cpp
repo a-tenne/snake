@@ -16,7 +16,8 @@ constexpr const char *FONT_PATH = "assets/Pixellettersfull-BnJ5.ttf";
 constexpr const char *NAME = "Snake";
 constexpr int WINDOW_WIDTH = 1000;
 constexpr int WINDOW_HEIGHT = 700;
-constexpr unsigned int SDL_FLAGS = SDL_INIT_VIDEO;
+constexpr SDL_InitFlags SDL_FLAGS = SDL_INIT_VIDEO;
+constexpr SDL_WindowFlags WINDOW_FLAGS = SDL_WINDOW_RESIZABLE;
 constexpr int FRAME_RATE = 60;
 constexpr int TICKS_PER_SECOND = 7;
 
@@ -44,7 +45,7 @@ main (int argc, char *argv[])
                            path.empty () ? "<EMPTY PATH>" : path));
         }
       path = path.erase (path.find_last_of (separator) + 1);
-      Game game (NAME, WINDOW_WIDTH, WINDOW_HEIGHT, SDL_FLAGS,
+      Game game (NAME, WINDOW_WIDTH, WINDOW_HEIGHT, SDL_FLAGS, WINDOW_FLAGS,
                  path + FONT_PATH, TICKS_PER_SECOND, FRAME_RATE);
       game.run ();
     }
@@ -53,9 +54,8 @@ main (int argc, char *argv[])
 #ifdef WIN32
       MessageBoxA (nullptr, e.what (), "FATAL ERROR", MB_OK | MB_ICONERROR);
 #else
-      std::cerr << "FATAL ERROR: " << e.what () << std::endl;
+      std::cerr << e.what () << std::endl;
 #endif
       return EXIT_FAILURE;
     }
-  return EXIT_SUCCESS;
 }

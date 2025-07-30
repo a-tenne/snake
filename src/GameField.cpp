@@ -21,12 +21,12 @@ GameField::GameField (int side_length, int num_fruits)
   if (side_length <= 0)
     {
       throw std::invalid_argument (std::format (
-          "Invalid width passed to {}: {}\n", fn_name, side_length));
+          "Invalid width passed to {}: {}", fn_name, side_length));
     }
   if (num_fruits <= 0)
     {
       throw std::invalid_argument (std::format (
-          "Invalid number of fruits passed to {}: {}\n", fn_name, num_fruits));
+          "Invalid number of fruits passed to {}: {}", fn_name, num_fruits));
     }
 }
 
@@ -77,8 +77,10 @@ GameField::render (SDL_Renderer &renderer, int window_height,
   border.w = window_width > window_height ? window_width - diff : window_width;
   border.h
       = window_height > window_width ? window_height - diff : window_height;
-  float cell_width = calculate_dimension (border.w, m_side_length);
-  float cell_height = calculate_dimension (border.h, m_side_length);
+  float cell_width
+      = calculate_dimension (static_cast<int> (border.w), m_side_length);
+  float cell_height
+      = calculate_dimension (static_cast<int> (border.h), m_side_length);
   float cell_size = std::min (cell_width, cell_height);
 
   std::vector<SDL_FRect> gray_rects;
@@ -223,7 +225,7 @@ GameField::init ()
       break;
     default:
       throw std::logic_error (
-          std::format ("Invalid direction in {}\n", fn_name));
+          std::format ("Invalid direction in {}", fn_name));
       break;
     }
   m_snake = Snake (x_snake, y_snake, dir);

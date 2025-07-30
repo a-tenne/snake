@@ -38,7 +38,11 @@ add_executable(${PROJECT_NAME} ${SOURCES})
 
 set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT ${PROJECT_NAME})
 
-add_compile_options(-Wall -Werr -pedantic -fsanitize=address,undefined)
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+  add_compile_options(-Wall -Werr -pedantic -fsanitize=address,undefined)
+else()
+  add_compile_options(-Wall -Werr -pedantic)
+endif()
 
 target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/include)
 target_include_directories(${PROJECT_NAME} PRIVATE ${SDL3_SOURCE_DIR}/include)

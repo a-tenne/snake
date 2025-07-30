@@ -1,5 +1,7 @@
 #include "Game.hpp"
 #include "SDL3/SDL_render.h"
+#include "SDL3/SDL_video.h"
+#include "SDL3_ttf/SDL_ttf.h"
 #include "SnakePart.hpp"
 #include "util.hpp"
 #include <ctime>
@@ -11,29 +13,29 @@ constexpr int SIDE_LENGTH = 25;
 constexpr int NUM_FRUITS = 4;
 
 Game::Game (std::string_view title, int width, int height,
-            unsigned int sdl_flags, std::string_view font_path, int tps,
-            int fps)
+            SDL_InitFlags sdl_flags, SDL_WindowFlags window_flags,
+            std::string_view font_path, int tps, int fps)
     : m_width{ width }, m_height{ height }, m_field{ SIDE_LENGTH, NUM_FRUITS },
       m_state{ GameState::START }, m_tps{ tps }, m_fps{ fps }
 {
   constexpr auto fn_name = pretty_fn_name ();
-  constexpr auto int_gt_zero = [fn_name] (int arg_val, const char *arg_name) {
-    if (arg_val <= 0) [[unlikely]]
-      {
-        throw std::invalid_argument (std::format ("{} <= 0 passed to {}: {}\n",
-                                                  arg_name, fn_name, arg_val));
-      }
-  };
-  int_gt_zero (width, "Window width");
-  int_gt_zero (height, "Window height");
-  int_gt_zero (tps, "TPS");
-  int_gt_zero (fps, "FPS");
+  constexpr auto param_gt_zero
+      = [fn_name] (int arg_val, const char *arg_name) {
+          if (arg_val <= 0) [[unlikely]]
+            {
+              throw std::invalid_argument (std::format (
+                  "{} <= 0 passed to {}: {}", arg_name, fn_name, arg_val));
+            }
+        };
+  param_gt_zero (width, "Window width");
+  param_gt_zero (height, "Window height");
+  param_gt_zero (tps, "TPS");
+  param_gt_zero (fps, "FPS");
 
   const bool sdl_correct_init
       = SDL_Init (sdl_flags) && TTF_Init ()
         && SDL_CreateWindowAndRenderer (title.data (), width, height,
-                                        SDL_WINDOW_RESIZABLE, &m_window,
-                                        &m_renderer)
+                                        window_flags, &m_window, &m_renderer)
         && SDL_GetCurrentTime (&m_time);
   if (!sdl_correct_init) [[unlikely]]
     {
@@ -50,9 +52,9 @@ Game::Game (std::string_view title, int width, int height,
 
 Game::~Game ()
 {
-  SDL_DestroyWindow (m_window);
-  SDL_DestroyRenderer (m_renderer);
-  TTF_CloseFont (m_font);
+  sdl_delete (m_window, SDL_DestroyWindow);
+  sdl_delete (m_renderer, SDL_DestroyRenderer);
+  sdl_delete (m_font, TTF_CloseFont);
   TTF_Quit ();
   SDL_Quit ();
 }
@@ -185,16 +187,14 @@ Game::render_high_score ()
       text = std::format ("High Score: {}", last_high_score);
     }
   SDL_Color white = { 255, 255, 255, SDL_ALPHA_OPAQUE };
-  std::unique_ptr<SDL_Surface, void (*) (SDL_Surface *)> surface (
-      TTF_RenderText_Solid (m_font, text.data (), 0, white),
-      SDL_DestroySurface);
+  surface_unique surface (
+      TTF_RenderText_Solid (m_font, text.data (), 0, white));
   if (surface == nullptr) [[unlikely]]
     {
       sdl_exit_error ();
     }
-  std::unique_ptr<SDL_Texture, void (*) (SDL_Texture *)> texture (
-      SDL_CreateTextureFromSurface (m_renderer, surface.get ()),
-      SDL_DestroyTexture);
+  texture_unique texture (
+      SDL_CreateTextureFromSurface (m_renderer, surface.get ()));
   if (texture == nullptr) [[unlikely]]
     {
       sdl_exit_error ();
@@ -212,22 +212,19 @@ Game::render_text_fields (std::string_view field1, std::string_view field2,
                           bool show_high_score)
 {
   SDL_Color white = { 255, 255, 255, SDL_ALPHA_OPAQUE };
-  std::unique_ptr<SDL_Surface, void (*) (SDL_Surface *)> surface1 (
-      TTF_RenderText_Solid (m_font, field1.data (), 0, white),
-      SDL_DestroySurface);
-  std::unique_ptr<SDL_Surface, void (*) (SDL_Surface *)> surface2 (
-      TTF_RenderText_Solid (m_font, field2.data (), 0, white),
-      SDL_DestroySurface);
+
+  surface_unique surface1 (
+      TTF_RenderText_Solid (m_font, field1.data (), 0, white));
+  surface_unique surface2 (
+      TTF_RenderText_Solid (m_font, field2.data (), 0, white));
   if (surface1 == nullptr || surface2 == nullptr) [[unlikely]]
     {
       sdl_exit_error ();
     }
-  std::unique_ptr<SDL_Texture, void (*) (SDL_Texture *)> texture1 (
-      SDL_CreateTextureFromSurface (m_renderer, surface1.get ()),
-      SDL_DestroyTexture);
-  std::unique_ptr<SDL_Texture, void (*) (SDL_Texture *)> texture2 (
-      SDL_CreateTextureFromSurface (m_renderer, surface2.get ()),
-      SDL_DestroyTexture);
+  texture_unique texture1 (
+      SDL_CreateTextureFromSurface (m_renderer, surface1.get ()));
+  texture_unique texture2 (
+      SDL_CreateTextureFromSurface (m_renderer, surface2.get ()));
   if (texture1 == nullptr || texture2 == nullptr) [[unlikely]]
     {
       sdl_exit_error ();
