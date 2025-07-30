@@ -11,6 +11,7 @@
 
 constexpr int SIDE_LENGTH = 25;
 constexpr int NUM_FRUITS = 4;
+constexpr float FONT_SIZE = 60;
 
 Game::Game (std::string_view title, int width, int height,
             SDL_InitFlags sdl_flags, SDL_WindowFlags window_flags,
@@ -41,8 +42,7 @@ Game::Game (std::string_view title, int width, int height,
     {
       sdl_exit_error ();
     }
-
-  if (m_font = TTF_OpenFont (font_path.data (), 60); m_font == nullptr)
+  if (m_font = TTF_OpenFont (font_path.data (), FONT_SIZE); m_font == nullptr)
       [[unlikely]]
     {
       sdl_exit_error ();
@@ -179,8 +179,8 @@ Game::handle_event (SDL_Event &event)
 bool
 Game::render_high_score ()
 {
-  static int last_high_score = -1;
-  static std::string text;
+  static constinit int last_high_score = -1;
+  static constinit std::string text;
   if (last_high_score != m_high_score)
     {
       last_high_score = m_high_score;

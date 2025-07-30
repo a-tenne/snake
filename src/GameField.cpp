@@ -133,6 +133,11 @@ GameField::update ()
     {
       return;
     }
+  if (m_dir_buffer != Direction::INVALID)
+    {
+      m_snake.set_direction (m_dir_buffer);
+      m_dir_buffer = Direction::INVALID;
+    }
   m_snake.move ();
   if (wall_collides () || self_collides ())
     {
@@ -190,7 +195,7 @@ GameField::change_snake_direction (Direction dir)
       it != opposites.end ()
       && m_snake.get_head ().get_direction () != it->second)
     {
-      m_snake.set_direction (dir);
+      m_dir_buffer = dir;
     }
 }
 

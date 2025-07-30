@@ -38,4 +38,5 @@ private:
   Snake m_snake;
   int m_side_length, m_num_fruits;
   bool m_snake_alive;
+  Direction m_dir_buffer = Direction::INVALID;
 };

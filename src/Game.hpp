@@ -4,6 +4,7 @@
 #include "SDL3_ttf/SDL_ttf.h"
 #include <SDL3/SDL.h>
 #include <string_view>
+
 class Game
 {
 public:
@@ -24,7 +25,7 @@ private:
       }
   }
 
-  template <typename T, auto F> struct SDL_deleter
+  template <typename T, void (*F) (T *)> struct SDL_deleter
   {
     void
     operator() (T *ptr)
@@ -36,10 +37,11 @@ private:
     }
   };
 
-  template <typename T, auto F>
-  using SDL_unique = std::unique_ptr<T, SDL_deleter<T, F>>;
-  using surface_unique = SDL_unique<SDL_Surface, SDL_DestroySurface>;
-  using texture_unique = SDL_unique<SDL_Texture, SDL_DestroyTexture>;
+  template <typename T, void (*F) (T *)>
+  using sdl_unique = std::unique_ptr<T, SDL_deleter<T, F>>;
+
+  using surface_unique = sdl_unique<SDL_Surface, SDL_DestroySurface>;
+  using texture_unique = sdl_unique<SDL_Texture, SDL_DestroyTexture>;
 
   enum class GameState
   {
