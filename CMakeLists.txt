@@ -32,23 +32,26 @@ FetchContent_MakeAvailable(SDL3_ttf)
 
 file(GLOB_RECURSE SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp)
 
-string(TOLOWER "${CMAKE_BUILD_TYPE}" BUILD_TYPE_LOWER)
+add_executable(${PROJECT_NAME} ${SOURCES})
 
-if(NOT BUILD_TYPE_LOWER STREQUAL "test")
-  add_executable(${PROJECT_NAME} ${SOURCES})
-  if(BUILD_TYPE_LOWER STREQUAL "debug")
-    target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Werror -pedantic -fsanitize=address,undefined)
-    target_link_options(${PROJECT_NAME} PRIVATE -fsanitize=address,undefined)
-  else()
-    target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Werror -pedantic)
-  endif()
-  set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT ${PROJECT_NAME})
-  target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/include)
-  target_link_libraries(${PROJECT_NAME} PRIVATE SDL3-static SDL3_ttf-static)
-  add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_LIST_DIR}/assets $<TARGET_FILE_DIR:${PROJECT_NAME}>/assets
-  )
+if(MSVC)
+  target_compile_options(${PROJECT_NAME} PRIVATE /W4 /WX)
+elseif(CMAKE_BUILD_TYPE STREQUAL "Debug")
+  target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Werror -pedantic -fsanitize=address,undefined)
+  target_link_options(${PROJECT_NAME} PRIVATE -fsanitize=address,undefined)
 else()
+  target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Werror -pedantic)
+endif()
+set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT ${PROJECT_NAME})
+target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/include)
+target_link_libraries(${PROJECT_NAME} PRIVATE SDL3-static SDL3_ttf-static)
+add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+  COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_LIST_DIR}/assets $<TARGET_FILE_DIR:${PROJECT_NAME}>/assets
+)
+
+option(BUILD_TESTING "Build unit tests" ON)
+
+if(BUILD_TESTING)
   FetchContent_MakeAvailable(SDL3_ttf)
 
   FetchContent_Declare(
@@ -62,8 +65,12 @@ else()
   list(APPEND TEST_SOURCES ${SOURCES})
   list(REMOVE_ITEM TEST_SOURCES ${PROJECT_SOURCE_DIR}/src/main.cpp)
   add_executable(Tests ${TEST_SOURCES})
+if (MSVC)
+  target_compile_options(Tests PRIVATE /W4 /WX)
+else()
   target_compile_options(Tests PRIVATE -Wall -Werror -pedantic -fsanitize=address,undefined)
   target_link_options(Tests PRIVATE -fsanitize=address,undefined)
+endif()
   target_include_directories(Tests PRIVATE ${PROJECT_SOURCE_DIR}/include)
   target_link_libraries(Tests PRIVATE SDL3-static SDL3_ttf-static GTest::gtest GTest::gtest_main)
   include(GoogleTest)
