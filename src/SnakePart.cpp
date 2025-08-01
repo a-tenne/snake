@@ -9,12 +9,6 @@ SnakePart::SnakePart (int x, int y, Direction dir)
 {
 }
 
-SnakePart::SnakePart ()
-    : Entity{ INVALID_POS, INVALID_POS, GREEN },
-      m_direction{ Direction::INVALID }
-{
-}
-
 void
 SnakePart::move ()
 {

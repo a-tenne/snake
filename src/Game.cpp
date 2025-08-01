@@ -16,8 +16,8 @@ constexpr float FONT_SIZE = 60;
 Game::Game (std::string_view title, int width, int height,
             SDL_InitFlags sdl_flags, SDL_WindowFlags window_flags,
             std::string_view font_path, int tps, int fps)
-    : m_width{ width }, m_height{ height }, m_field{ SIDE_LENGTH, NUM_FRUITS },
-      m_state{ GameState::START }, m_tps{ tps }, m_fps{ fps }
+    : m_state{ GameState::START }, m_field{ SIDE_LENGTH, NUM_FRUITS }, m_width{ width },
+      m_height{ height }, m_tps{ tps }, m_fps{ fps }
 {
   constexpr auto fn_name = pretty_fn_name ();
   constexpr auto param_gt_zero

@@ -29,7 +29,7 @@ This project is a very basic implementation of [Snake](https://en.wikipedia.org/
 - Packages, that SDL3 and SDL3-ttf need to build from source:
     - [Linux guide](https://github.com/libsdl-org/SDL/blob/main/docs/README-linux.md) for SDL3
     - The [macOS guide](https://github.com/libsdl-org/SDL/blob/main/docs/README-macos.md) states that you will need Xcode 12.2 and the macOS 11.0 SDK. However I have found that having the Xcode app is not necessary. I would highly recommend installing the [Xcode Command Line Tools](https://mac.install.guide/commandlinetools/), which you probably already have if you're using git or homebrew.
-    - You will need [FreeType](https://freetype.org/download.html) for SDL3-ttf. For Debian-based Distros, for example, this would be the command to install it: `sudo apt install libfreetype6-dev`.
+    - You will need [FreeType](https://freetype.org/download.html) for SDL3-ttf. For Debian-based Distros, for example, this would be the command to install it: `sudo apt install libfreetype6-dev`
     - To install FreeType on macOS, use `brew install freetype`
     - Windows just needs [Visual Studio](https://visualstudio.microsoft.com/downloads/) 
 
@@ -43,7 +43,7 @@ For all of the Operating Systems mentioned, the first few steps will always be t
 
 After that following through, your build folder will either contain a `Makefile` on Linux/macOS or a `Snake.sln` file on Windows.
 
-To build the game with the Makefile, run `make`.
+To build the game with the Makefile, run `make`
 
 For Windows, you will need to follow these steps:
 - Double click the `Snake.sln` file or use the following command: `start devenv .\Snake.sln`

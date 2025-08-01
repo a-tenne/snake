@@ -6,8 +6,18 @@
 class Snake
 {
 public:
-  Snake (int x_head, int y_head, Direction dir);
-  Snake () = default; // this will have invalid state
+  static Snake
+  create_snake (int x_head, int y_head, Direction dir)
+  {
+
+    return Snake (x_head, y_head, dir);
+  }
+  static Snake
+  create_invalid ()
+  {
+
+    return Snake (INVALID_POS, INVALID_POS, Direction::INVALID);
+  }
 
   inline void
   set_direction (Direction dir)
@@ -31,6 +41,7 @@ public:
   void eat_fruit ();
 
 private:
+  Snake (int x_head, int y_head, Direction dir);
   SnakePart m_head;
   std::vector<SnakePart> m_body;
   SnakePart m_last_pos;

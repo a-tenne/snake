@@ -14,8 +14,8 @@
 #include <unordered_map>
 
 GameField::GameField (int side_length, int num_fruits)
-    : m_side_length{ side_length }, m_snake_alive{ false },
-      m_num_fruits{ num_fruits }
+    : m_snake{Snake::create_invalid()}, m_side_length{ side_length },
+      m_num_fruits{ num_fruits }, m_snake_alive{ false }
 {
   constexpr auto fn_name = pretty_fn_name ();
   if (side_length <= 0)
@@ -233,13 +233,13 @@ GameField::init ()
           std::format ("Invalid direction in {}", fn_name));
       break;
     }
-  m_snake = Snake (x_snake, y_snake, dir);
+  m_snake = Snake::create_snake(x_snake, y_snake, dir);
   m_snake_alive = true;
 }
 void
 GameField::clear ()
 {
   m_fruits.clear ();
-  m_snake = Snake ();
+  m_snake = Snake::create_invalid();
   m_snake_alive = false;
 }

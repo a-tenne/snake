@@ -1,7 +1,9 @@
 #include "Snake.hpp"
+#include "SnakePart.hpp"
+#include <stdexcept>
 
 Snake::Snake (int x_head, int y_head, Direction dir)
-    : m_head{ x_head, y_head, dir }
+    : m_head{SnakePart::create_part(x_head, y_head, dir)}, m_last_pos{SnakePart::create_invalid()}
 {
 }
 
@@ -24,5 +26,9 @@ Snake::move ()
 void
 Snake::eat_fruit ()
 {
+  if(m_last_pos.get_direction() == Direction::INVALID) [[unlikely]] {
+    throw std::logic_error("Snake cannot consume a fruit at first game tick");
+  }
   m_body.push_back (m_last_pos);
+  m_last_pos = SnakePart::create_invalid();
 }

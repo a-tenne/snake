@@ -16,8 +16,12 @@ enum class Direction
 class SnakePart : public Entity
 {
 public:
-  SnakePart (); // this will have invalid state
-  SnakePart (int x, int y, Direction dir);
+  static SnakePart create_invalid() {
+    return SnakePart(INVALID_POS, INVALID_POS, Direction::INVALID);
+  }
+  static SnakePart create_part(int x, int y, Direction dir) {
+    return SnakePart(x,y,dir);
+  }
   inline Direction
   get_direction () const
   {
@@ -33,5 +37,6 @@ public:
   void move ();
 
 private:
+  SnakePart (int x, int y, Direction dir);
   Direction m_direction;
 };
