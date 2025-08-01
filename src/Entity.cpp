@@ -30,8 +30,8 @@ Entity::render (SDL_Renderer &renderer, const SDL_FRect &border,
       throw std::logic_error (
           std::format ("Invalid y coordinate in {}: {}", fn_name, m_point.y));
     }
-  float cell_width = calculate_dimension (border.w, side_length);
-  float cell_height = calculate_dimension (border.h, side_length);
+  float cell_width = calculate_dimension (static_cast<int>(border.w), side_length);
+  float cell_height = calculate_dimension (static_cast<int>(border.h), side_length);
   float cell_size = std::min (cell_width, cell_height);
 
   SDL_FRect frect;

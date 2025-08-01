@@ -202,7 +202,7 @@ GameField::change_snake_direction (Direction dir)
 void
 GameField::init ()
 {
-  for (int _ : std::ranges::views::iota (0, m_num_fruits))
+  for ([[maybe_unused]] int _ : std::ranges::views::iota (0, m_num_fruits))
     {
       spawn_fruit ();
     }

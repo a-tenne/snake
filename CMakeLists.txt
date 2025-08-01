@@ -52,8 +52,6 @@ add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
 option(BUILD_TESTING "Build unit tests" ON)
 
 if(BUILD_TESTING)
-  FetchContent_MakeAvailable(SDL3_ttf)
-
   FetchContent_Declare(
     googletest
     GIT_REPOSITORY https://github.com/google/googletest.git
@@ -72,7 +70,7 @@ else()
   target_link_options(Tests PRIVATE -fsanitize=address,undefined)
 endif()
   target_include_directories(Tests PRIVATE ${PROJECT_SOURCE_DIR}/include)
-  target_link_libraries(Tests PRIVATE SDL3-static SDL3_ttf-static GTest::gtest GTest::gtest_main)
+  target_link_libraries(Tests PRIVATE SDL3-static SDL3_ttf-static gtest_main)
   include(GoogleTest)
   gtest_discover_tests(Tests)
 endif()

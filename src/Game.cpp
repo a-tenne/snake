@@ -180,7 +180,7 @@ bool
 Game::render_high_score ()
 {
   static constinit int last_high_score = -1;
-  static constinit std::string text;
+  static std::string text;
   if (last_high_score != m_high_score)
     {
       last_high_score = m_high_score;

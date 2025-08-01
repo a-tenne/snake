@@ -81,23 +81,23 @@ TEST_P (SnakeMoveParamTest, MultipleMoves)
       break;
     }
   snake.set_direction (dir);
-  for (int _ : std::ranges::views::iota (0, 10))
+  for ([[maybe_unused]]int _ : std::ranges::views::iota (0, 10))
     {
       snake.move ();
     }
   EXPECT_EQ (snake.get_head ().get_point (), point);
 }
 
-INSTANTIATE_TEST_CASE_P (MovesUp, SnakeMoveParamTest,
+INSTANTIATE_TEST_SUITE_P (MovesUp, SnakeMoveParamTest,
                          testing::Values (SnakeMovementTuple{ Direction::UP,
                                                               { 0, -1 } }));
-INSTANTIATE_TEST_CASE_P (MovesDown, SnakeMoveParamTest,
+INSTANTIATE_TEST_SUITE_P (MovesDown, SnakeMoveParamTest,
                          testing::Values (SnakeMovementTuple{ Direction::DOWN,
                                                               { 0, 1 } }));
-INSTANTIATE_TEST_CASE_P (MovesLeft, SnakeMoveParamTest,
+INSTANTIATE_TEST_SUITE_P (MovesLeft, SnakeMoveParamTest,
                          testing::Values (SnakeMovementTuple{ Direction::LEFT,
                                                               { -1, 0 } }));
-INSTANTIATE_TEST_CASE_P (MovesRight, SnakeMoveParamTest,
+INSTANTIATE_TEST_SUITE_P (MovesRight, SnakeMoveParamTest,
                          testing::Values (SnakeMovementTuple{ Direction::RIGHT,
                                                               { 1, 0 } }));
 struct SnakeFruitTest : testing::Test
