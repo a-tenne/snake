@@ -16,13 +16,13 @@ constexpr float FONT_SIZE = 60;
 Game::Game (std::string_view title, int width, int height,
             SDL_InitFlags sdl_flags, SDL_WindowFlags window_flags,
             std::string_view font_path, int tps, int fps)
-    : m_state{ GameState::START }, m_field{ SIDE_LENGTH, NUM_FRUITS }, m_width{ width },
-      m_height{ height }, m_tps{ tps }, m_fps{ fps }
+    : m_state{ GameState::START }, m_field{ SIDE_LENGTH, NUM_FRUITS },
+      m_width{ width }, m_height{ height }, m_tps{ tps }, m_fps{ fps }
 {
-  constexpr auto fn_name = PRETTY_FN_NAME; 
+  constexpr auto fn_name = PRETTY_FN_NAME;
   constexpr auto param_gt_zero
       = [fn_name] (int arg_val, const char *arg_name) {
-          if (arg_val <= 0) [[unlikely]]
+          if (arg_val <= 0)
             {
               throw std::invalid_argument (std::format (
                   "{} <= 0 passed to {}: {}", arg_name, fn_name, arg_val));
@@ -48,6 +48,16 @@ Game::Game (std::string_view title, int width, int height,
       sdl_exit_error ();
     }
   std::srand (static_cast<unsigned int> (std::time (nullptr)));
+}
+
+template <typename T>
+static void
+sdl_delete (T *ptr, void (*deleter) (T *))
+{
+  if (ptr != nullptr)
+    {
+      deleter (ptr);
+    }
 }
 
 Game::~Game ()
@@ -135,19 +145,31 @@ Game::handle_event (SDL_Event &event)
         {
         case SDLK_W:
         case SDLK_UP:
-          m_field.change_snake_direction (Direction::UP);
+          if (m_state == GameState::RUNNING)
+            {
+              m_field.change_snake_direction (Direction::UP);
+            }
           break;
         case SDLK_A:
         case SDLK_LEFT:
-          m_field.change_snake_direction (Direction::LEFT);
+          if (m_state == GameState::RUNNING)
+            {
+              m_field.change_snake_direction (Direction::LEFT);
+            }
           break;
         case SDLK_S:
         case SDLK_DOWN:
-          m_field.change_snake_direction (Direction::DOWN);
+          if (m_state == GameState::RUNNING)
+            {
+              m_field.change_snake_direction (Direction::DOWN);
+            }
           break;
         case SDLK_D:
         case SDLK_RIGHT:
-          m_field.change_snake_direction (Direction::RIGHT);
+          if (m_state == GameState::RUNNING)
+            {
+              m_field.change_snake_direction (Direction::RIGHT);
+            }
           break;
         case SDLK_ESCAPE:
           m_running = false;

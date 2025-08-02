@@ -1,12 +1,14 @@
 #pragma once
 
+#include <string>
 #if defined(__clang__) || defined(__GNUC__)
 #define PRETTY_FN_NAME __PRETTY_FUNCTION__
 #elif defined(_MSC_VER)
 #define PRETTY_FN_NAME __FUNCSIG__
-#else 
+#else
 #define PRETTY_FN_NAME __FUNCTION__
 #endif
 
 void sdl_exit_error ();
 float calculate_dimension (int window_dimension, int field_dimension);
+std::string resolve_font_path (int argc, char *const argv[]);

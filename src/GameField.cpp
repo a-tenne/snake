@@ -6,6 +6,7 @@
 #include "SnakePart.hpp"
 #include "util.hpp"
 #include <algorithm>
+#include <cmath>
 #include <cstdlib>
 #include <format>
 #include <memory>
@@ -14,8 +15,8 @@
 #include <unordered_map>
 
 GameField::GameField (int side_length, int num_fruits)
-    : m_snake{Snake::create_invalid()}, m_side_length{ side_length },
-      m_num_fruits{ num_fruits }, m_snake_alive{ false }
+    : m_snake{ Snake::create_invalid () }, m_side_length{ side_length },
+      m_num_fruits{ num_fruits }
 {
   constexpr auto fn_name = PRETTY_FN_NAME;
   if (side_length <= 0)
@@ -27,6 +28,14 @@ GameField::GameField (int side_length, int num_fruits)
     {
       throw std::invalid_argument (std::format (
           "Invalid number of fruits passed to {}: {}", fn_name, num_fruits));
+    }
+  if (double spaces_available = std::pow (side_length, 2) - 1;
+      num_fruits > spaces_available)
+    {
+      throw std::invalid_argument (
+          std::format ("Not enough free spaces given in {} for "
+                       "fruit.\nSpaces available: {}, num_fruits: {}",
+                       fn_name, spaces_available, num_fruits));
     }
 }
 
@@ -84,11 +93,11 @@ GameField::render (SDL_Renderer &renderer, int window_height,
   float cell_size = std::min (cell_width, cell_height);
 
   std::vector<SDL_FRect> gray_rects;
-  gray_rects.reserve ((m_side_length ^ 2) / 2);
-
-  for (int i : std::ranges::views::iota (0, m_side_length))
+  gray_rects.reserve (static_cast<size_t>(std::pow (m_side_length, 2) / 2.0));
+  constexpr auto range = std::ranges::views::iota;
+  for (int i : range(0, m_side_length))
     {
-      for (int j : std::ranges::views::iota (0, m_side_length))
+      for (int j : range(0, m_side_length))
         {
           if (i % 2 != j % 2)
             {
@@ -186,14 +195,31 @@ GameField::change_snake_direction (Direction dir)
           { Direction::RIGHT, Direction::LEFT },
           { Direction::UP, Direction::DOWN },
           { Direction::DOWN, Direction::UP } };
+
+  constexpr auto fn_name = PRETTY_FN_NAME;
+
+  if (!m_snake_alive
+      || m_snake.get_head ().get_direction () == Direction::INVALID)
+    {
+      throw std::logic_error (std::format (
+          "Trying to change direction on snake with invalid state in {}",
+          fn_name));
+    }
+
+  if (dir == Direction::INVALID)
+    {
+      throw std::logic_error (std::format (
+          "Trying to change snake direction to invalid direction in {}",
+          fn_name));
+    }
+
   if (m_snake.get_body ().empty ())
     {
-      m_snake.set_direction (dir);
-      return;
+      m_dir_buffer = dir;
     }
-  if (auto it = opposites.find (dir);
-      it != opposites.end ()
-      && m_snake.get_head ().get_direction () != it->second)
+  else if (auto it = opposites.find (dir);
+           it != opposites.end ()
+           && m_snake.get_head ().get_direction () != it->second)
     {
       m_dir_buffer = dir;
     }
@@ -233,13 +259,13 @@ GameField::init ()
           std::format ("Invalid direction in {}", fn_name));
       break;
     }
-  m_snake = Snake::create_snake(x_snake, y_snake, dir);
+  m_snake = Snake::create_snake (x_snake, y_snake, dir);
   m_snake_alive = true;
 }
 void
 GameField::clear ()
 {
   m_fruits.clear ();
-  m_snake = Snake::create_invalid();
+  m_snake = Snake::create_invalid ();
   m_snake_alive = false;
 }

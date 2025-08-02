@@ -1,14 +1,14 @@
 #include "Snake.hpp"
+#include "SnakeMovementTuple.hpp"
 #include "SnakePart.hpp"
 #include <gtest/gtest.h>
-#include "SnakeMovementTuple.hpp"
 #include <ranges>
 #include <stdexcept>
 
 struct SnakeMoveTest : testing::Test
 {
   Snake snake;
-  SnakeMoveTest () : snake{Snake::create_snake(0, 0, Direction::INVALID)} {}
+  SnakeMoveTest () : snake{ Snake::create_snake (0, 0, Direction::INVALID) } {}
 };
 
 TEST_F (SnakeMoveTest, InvalidThrows)
@@ -16,19 +16,24 @@ TEST_F (SnakeMoveTest, InvalidThrows)
   EXPECT_THROW (snake.move (), std::logic_error);
 }
 
-TEST_F(SnakeMoveTest, BiggerSnakeMoves) {
-  snake.set_direction(Direction::RIGHT);
-  for([[maybe_unused]]int _ : std::ranges::views::iota(0,5)) {
-    snake.move();
-    snake.eat_fruit();
-  }
+TEST_F (SnakeMoveTest, BiggerSnakeMoves)
+{
+  constexpr auto range = std::ranges::views::iota;
+  snake.set_direction (Direction::RIGHT);
+  for ([[maybe_unused]] int _ : range (0, 5))
+    {
+      snake.move ();
+      snake.eat_fruit ();
+    }
   Snake old = snake;
-  snake.move();
-  ASSERT_NE(snake.get_head().get_point(), old.get_head().get_point());
-  for(int i : std::ranges::views::iota(0,5)) {
-    const SnakePart &new_part = snake.get_body().at(i), &old_part = old.get_body().at(i);
-    ASSERT_NE(new_part.get_point(), old_part.get_point());
-  }
+  snake.move ();
+  ASSERT_NE (snake.get_head ().get_point (), old.get_head ().get_point ());
+  for (int i : range (0, 5))
+    {
+      const SnakePart &new_part = snake.get_body ().at (i),
+                      &old_part = old.get_body ().at (i);
+      ASSERT_NE (new_part.get_point (), old_part.get_point ());
+    }
 }
 
 struct SnakeMoveParamTest : SnakeMoveTest,
@@ -61,7 +66,7 @@ TEST_P (SnakeMoveParamTest, MultipleMoves)
       break;
     }
   snake.set_direction (dir);
-  for ([[maybe_unused]]int _ : std::ranges::views::iota (0, 10))
+  for ([[maybe_unused]] int _ : std::ranges::views::iota (0, 10))
     {
       snake.move ();
     }
@@ -69,17 +74,17 @@ TEST_P (SnakeMoveParamTest, MultipleMoves)
 }
 
 INSTANTIATE_TEST_SUITE_P (MovesUp, SnakeMoveParamTest,
-                         testing::Values (SnakeMovementTuple{ Direction::UP,
-                                                              { 0, -1 } }));
+                          testing::Values (SnakeMovementTuple{ Direction::UP,
+                                                               { 0, -1 } }));
 INSTANTIATE_TEST_SUITE_P (MovesDown, SnakeMoveParamTest,
-                         testing::Values (SnakeMovementTuple{ Direction::DOWN,
-                                                              { 0, 1 } }));
+                          testing::Values (SnakeMovementTuple{ Direction::DOWN,
+                                                               { 0, 1 } }));
 INSTANTIATE_TEST_SUITE_P (MovesLeft, SnakeMoveParamTest,
-                         testing::Values (SnakeMovementTuple{ Direction::LEFT,
-                                                              { -1, 0 } }));
+                          testing::Values (SnakeMovementTuple{ Direction::LEFT,
+                                                               { -1, 0 } }));
 INSTANTIATE_TEST_SUITE_P (MovesRight, SnakeMoveParamTest,
-                         testing::Values (SnakeMovementTuple{ Direction::RIGHT,
-                                                              { 1, 0 } }));
+                          testing::Values (SnakeMovementTuple{
+                              Direction::RIGHT, { 1, 0 } }));
 struct SnakeFruitTest : testing::Test
 {
   Snake snake = Snake::create_snake (1, 1, Direction::RIGHT);
@@ -96,11 +101,11 @@ TEST_F (SnakeFruitTest, EatAfterMove)
   snake.move ();
   snake.eat_fruit ();
   ASSERT_EQ (snake.get_body ().size (), 1);
-  ASSERT_EQ (snake.get_body ().at (0).get_point (), last_pos.get_point());
+  ASSERT_EQ (snake.get_body ().at (0).get_point (), last_pos.get_point ());
 }
-TEST_F (SnakeFruitTest, ConsecutiveEatThrows) 
+TEST_F (SnakeFruitTest, ConsecutiveEatThrows)
 {
   snake.move ();
   snake.eat_fruit ();
-  EXPECT_THROW(snake.eat_fruit (), std::logic_error);
+  EXPECT_THROW (snake.eat_fruit (), std::logic_error);
 }

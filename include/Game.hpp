@@ -15,16 +15,6 @@ public:
   void run ();
 
 private:
-  template <typename T>
-  static void
-  sdl_delete (T *ptr, void (*deleter) (T *))
-  {
-    if (ptr != nullptr)
-      {
-        deleter (ptr);
-      }
-  }
-
   template <typename T, void (*F) (T *)> struct SDL_deleter
   {
     void

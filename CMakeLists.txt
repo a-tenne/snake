@@ -73,7 +73,10 @@ if(BUILD_TESTING)
     target_link_options(Tests PRIVATE -fsanitize=address,undefined)
   endif()
   target_include_directories(Tests PRIVATE ${PROJECT_SOURCE_DIR}/include)
-  target_link_libraries(Tests PRIVATE SDL3-static SDL3_ttf-static gtest_main)
+  target_link_libraries(Tests PRIVATE SDL3-static SDL3_ttf-static gtest)
+  add_custom_command(TARGET Tests POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_LIST_DIR}/assets $<TARGET_FILE_DIR:Tests>/assets
+  )
   include(GoogleTest)
   gtest_discover_tests(Tests)
 endif()

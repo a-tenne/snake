@@ -37,6 +37,6 @@ private:
   std::vector<std::unique_ptr<Fruit>> m_fruits;
   Snake m_snake;
   int m_side_length, m_num_fruits;
-  bool m_snake_alive;
+  bool m_snake_alive = false;
   Direction m_dir_buffer = Direction::INVALID;
 };
