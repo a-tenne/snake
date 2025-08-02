@@ -2,6 +2,7 @@
 #include "SDL3/SDL_error.h"
 #include <format>
 #include <stdexcept>
+#include <algorithm>
 
 void
 sdl_exit_error ()
@@ -34,27 +35,21 @@ std::string
 resolve_font_path (int argc, char *const argv[])
 {
 constexpr const char *BASE_PATH = {
-#ifdef WIN32
-  "assets\\Pixellettersfull-BnJ5.ttf"
-#else
   "assets/Pixellettersfull-BnJ5.ttf"
-#endif
 };
-#ifdef WIN32
-  constexpr char separator = '\\';
-#else
-  constexpr char separator = '/';
-#endif
+constexpr char unix_separator = '/';
+  constexpr char win_separator = '\\';
   if (argc < 1) [[unlikely]]
     {
       throw std::invalid_argument ("Program startup path unavailable.");
     }
   std::string path (argv[0]);
-  if (!path.contains (separator)) [[unlikely]]
+  std::replace(path.begin(), path.end(), win_separator, unix_separator);
+  if ((path.contains (unix_separator) && path.contains(win_separator)) || path.empty()) [[unlikely]]
     {
       throw std::invalid_argument (
           std::format ("Malformed program startup path: {}",
                        path.empty () ? "<EMPTY PATH>" : path));
     }
-  return path.erase (path.find_last_of (separator) + 1) + BASE_PATH;
+  return path.erase(path.find_last_of(unix_separator) + 1) + BASE_PATH;
 }

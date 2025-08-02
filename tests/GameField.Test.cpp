@@ -69,7 +69,7 @@ TEST_F(GameFieldTest, InvalidRendererThrows) {
 
 TEST_F(GameFieldTest, SnakeRunsIntoWall) {
   field.init();
-  for(int _ : std::ranges::views::iota(0,FIELD_SIZE)) {
+  for([[maybe_unused]]int _ : std::ranges::views::iota(0,FIELD_SIZE)) {
     field.update();
   }
   ASSERT_FALSE(field.is_snake_alive());
