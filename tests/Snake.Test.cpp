@@ -1,40 +1,9 @@
 #include "Snake.hpp"
 #include "SnakePart.hpp"
 #include <gtest/gtest.h>
-#include <ostream>
+#include "SnakeMovementTuple.hpp"
 #include <ranges>
 #include <stdexcept>
-
-struct SnakeMovementTuple
-{
-  Direction dir;
-  Point expected;
-  friend std::ostream &
-  operator<< (std::ostream &os, const SnakeMovementTuple &tuple)
-  {
-    const char *dir_str = nullptr;
-    switch (tuple.dir)
-      {
-      case Direction::UP:
-        dir_str = "UP";
-        break;
-      case Direction::DOWN:
-        dir_str = "DOWN";
-        break;
-      case Direction::LEFT:
-        dir_str = "LEFT";
-        break;
-      case Direction::RIGHT:
-        dir_str = "RIGHT";
-        break;
-      case Direction::INVALID:
-        dir_str = "INVALID";
-        break;
-      }
-    return os << "Direction: " << dir_str << " Point: {" << tuple.expected.x
-              << ", " << tuple.expected.y << "}";
-  }
-};
 
 struct SnakeMoveTest : testing::Test
 {
@@ -45,6 +14,21 @@ struct SnakeMoveTest : testing::Test
 TEST_F (SnakeMoveTest, InvalidThrows)
 {
   EXPECT_THROW (snake.move (), std::logic_error);
+}
+
+TEST_F(SnakeMoveTest, BiggerSnakeMoves) {
+  snake.set_direction(Direction::RIGHT);
+  for([[maybe_unused]]int _ : std::ranges::views::iota(0,5)) {
+    snake.move();
+    snake.eat_fruit();
+  }
+  Snake old = snake;
+  snake.move();
+  ASSERT_NE(snake.get_head().get_point(), old.get_head().get_point());
+  for(int i : std::ranges::views::iota(0,5)) {
+    const SnakePart &new_part = snake.get_body().at(i), &old_part = old.get_body().at(i);
+    ASSERT_NE(new_part.get_point(), old_part.get_point());
+  }
 }
 
 struct SnakeMoveParamTest : SnakeMoveTest,
@@ -65,16 +49,12 @@ TEST_P (SnakeMoveParamTest, MultipleMoves)
   switch (dir)
     {
     case Direction::UP:
-      point.y -= 9;
-      break;
     case Direction::DOWN:
-      point.y += 9;
+      point.y *= 10;
       break;
     case Direction::LEFT:
-      point.x -= 9;
-      break;
     case Direction::RIGHT:
-      point.x += 9;
+      point.x *= 10;
       break;
     case Direction::INVALID:
       FAIL ();

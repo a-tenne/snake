@@ -18,7 +18,7 @@ void
 Entity::render (SDL_Renderer &renderer, const SDL_FRect &border,
                 int side_length) const
 {
-  constexpr auto fn_name = pretty_fn_name ();
+  constexpr auto fn_name = PRETTY_FN_NAME;
 
   if (m_point.x < 0 || m_point.x >= side_length) [[unlikely]]
     {

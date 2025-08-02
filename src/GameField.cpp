@@ -17,7 +17,7 @@ GameField::GameField (int side_length, int num_fruits)
     : m_snake{Snake::create_invalid()}, m_side_length{ side_length },
       m_num_fruits{ num_fruits }, m_snake_alive{ false }
 {
-  constexpr auto fn_name = pretty_fn_name ();
+  constexpr auto fn_name = PRETTY_FN_NAME;
   if (side_length <= 0)
     {
       throw std::invalid_argument (std::format (
@@ -212,7 +212,7 @@ GameField::init ()
   int dir_num = std::rand () % 4;
   Direction dir;
 
-  constexpr auto fn_name = pretty_fn_name ();
+  constexpr auto fn_name = PRETTY_FN_NAME;
 
   switch (dir_num)
     {

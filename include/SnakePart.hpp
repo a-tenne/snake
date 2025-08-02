@@ -16,10 +16,10 @@ enum class Direction
 class SnakePart : public Entity
 {
 public:
-  static SnakePart create_invalid() {
+  static inline SnakePart create_invalid() {
     return SnakePart(INVALID_POS, INVALID_POS, Direction::INVALID);
   }
-  static SnakePart create_part(int x, int y, Direction dir) {
+  static inline SnakePart create_part(int x, int y, Direction dir) {
     return SnakePart(x,y,dir);
   }
   inline Direction

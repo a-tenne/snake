@@ -19,7 +19,7 @@ Game::Game (std::string_view title, int width, int height,
     : m_state{ GameState::START }, m_field{ SIDE_LENGTH, NUM_FRUITS }, m_width{ width },
       m_height{ height }, m_tps{ tps }, m_fps{ fps }
 {
-  constexpr auto fn_name = pretty_fn_name ();
+  constexpr auto fn_name = PRETTY_FN_NAME; 
   constexpr auto param_gt_zero
       = [fn_name] (int arg_val, const char *arg_name) {
           if (arg_val <= 0) [[unlikely]]

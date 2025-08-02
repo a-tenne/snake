@@ -6,13 +6,13 @@
 class Snake
 {
 public:
-  static Snake
+  static inline Snake
   create_snake (int x_head, int y_head, Direction dir)
   {
 
     return Snake (x_head, y_head, dir);
   }
-  static Snake
+  static inline Snake
   create_invalid ()
   {
 
