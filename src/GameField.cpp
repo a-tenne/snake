@@ -75,6 +75,7 @@ void
 GameField::render (SDL_Renderer &renderer, int window_height,
                    int window_width) const
 {
+  using colors::GRAY, colors::YELLOW;
   if (wall_collides ())
     {
       return;
@@ -93,11 +94,11 @@ GameField::render (SDL_Renderer &renderer, int window_height,
   float cell_size = std::min (cell_width, cell_height);
 
   std::vector<SDL_FRect> gray_rects;
-  gray_rects.reserve (static_cast<size_t>(std::pow (m_side_length, 2) / 2.0));
+  gray_rects.reserve (static_cast<size_t> (std::pow (m_side_length, 2) / 2.0));
   constexpr auto range = std::ranges::views::iota;
-  for (int i : range(0, m_side_length))
+  for (int i : range (0, m_side_length))
     {
-      for (int j : range(0, m_side_length))
+      for (int j : range (0, m_side_length))
         {
           if (i % 2 != j % 2)
             {

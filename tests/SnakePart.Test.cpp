@@ -1,16 +1,20 @@
 #include "SnakePart.hpp"
+#include "SnakeMovementTuple.hpp"
 #include <gtest/gtest.h>
 #include <ranges>
 #include <stdexcept>
-#include "SnakeMovementTuple.hpp"
 
-struct SnakePartTest : testing::Test {
+struct SnakePartTest : testing::Test
+{
   SnakePart part;
-  SnakePartTest() : part{SnakePart::create_part(0, 0, Direction::INVALID)}{}
+  SnakePartTest () : part{ SnakePart::create_part (0, 0, Direction::INVALID) }
+  {
+  }
 };
 
-TEST_F(SnakePartTest, InvalidThrows) {
-  EXPECT_THROW(part.move(), std::logic_error);
+TEST_F (SnakePartTest, InvalidThrows)
+{
+  EXPECT_THROW (part.move (), std::logic_error);
 }
 struct SnakePartParamTest : SnakePartTest,
                             testing::WithParamInterface<SnakeMovementTuple>
@@ -42,7 +46,7 @@ TEST_P (SnakePartParamTest, MultipleMoves)
       break;
     }
   part.set_direction (dir);
-  for ([[maybe_unused]]int _ : std::ranges::views::iota (0, 10))
+  for ([[maybe_unused]] int _ : std::ranges::views::iota (0, 10))
     {
       part.move ();
     }
@@ -50,14 +54,14 @@ TEST_P (SnakePartParamTest, MultipleMoves)
 }
 
 INSTANTIATE_TEST_SUITE_P (MovesUp, SnakePartParamTest,
-                         testing::Values (SnakeMovementTuple{ Direction::UP,
-                                                              { 0, -1 } }));
+                          testing::Values (SnakeMovementTuple{ Direction::UP,
+                                                               { 0, -1 } }));
 INSTANTIATE_TEST_SUITE_P (MovesDown, SnakePartParamTest,
-                         testing::Values (SnakeMovementTuple{ Direction::DOWN,
-                                                              { 0, 1 } }));
+                          testing::Values (SnakeMovementTuple{ Direction::DOWN,
+                                                               { 0, 1 } }));
 INSTANTIATE_TEST_SUITE_P (MovesLeft, SnakePartParamTest,
-                         testing::Values (SnakeMovementTuple{ Direction::LEFT,
-                                                              { -1, 0 } }));
+                          testing::Values (SnakeMovementTuple{ Direction::LEFT,
+                                                               { -1, 0 } }));
 INSTANTIATE_TEST_SUITE_P (MovesRight, SnakePartParamTest,
-                         testing::Values (SnakeMovementTuple{ Direction::RIGHT,
-                                                              { 1, 0 } }));
+                          testing::Values (SnakeMovementTuple{
+                              Direction::RIGHT, { 1, 0 } }));

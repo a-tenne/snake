@@ -5,7 +5,7 @@
 #include <stdexcept>
 
 SnakePart::SnakePart (int x, int y, Direction dir)
-    : Entity{ x, y, GREEN }, m_direction{ dir }
+    : Entity{ x, y, colors::GREEN }, m_direction{ dir }
 {
 }
 

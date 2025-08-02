@@ -31,4 +31,3 @@ struct SnakeMovementTuple
               << ", " << tuple.expected.y << "}";
   }
 };
-

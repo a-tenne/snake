@@ -8,15 +8,12 @@
 #include <format>
 #include <stdexcept>
 #include <string_view>
-
-constexpr int SIDE_LENGTH = 25;
-constexpr int NUM_FRUITS = 4;
-constexpr float FONT_SIZE = 60;
+#include "config.hpp"
 
 Game::Game (std::string_view title, int width, int height,
             SDL_InitFlags sdl_flags, SDL_WindowFlags window_flags,
             std::string_view font_path, int tps, int fps)
-    : m_state{ GameState::START }, m_field{ SIDE_LENGTH, NUM_FRUITS },
+    : m_state{ GameState::START }, m_field{ config::SIDE_LENGTH, config::NUM_FRUITS },
       m_width{ width }, m_height{ height }, m_tps{ tps }, m_fps{ fps }
 {
   constexpr auto fn_name = PRETTY_FN_NAME;
@@ -42,7 +39,7 @@ Game::Game (std::string_view title, int width, int height,
     {
       sdl_exit_error ();
     }
-  if (m_font = TTF_OpenFont (font_path.data (), FONT_SIZE); m_font == nullptr)
+  if (m_font = TTF_OpenFont (font_path.data (), config::FONT_SIZE); m_font == nullptr)
       [[unlikely]]
     {
       sdl_exit_error ();
@@ -262,6 +259,7 @@ Game::render_text_fields (std::string_view field1, std::string_view field2,
                       .y = static_cast<float> (m_height + surface2->h) / 2,
                       .w = static_cast<float> (surface2->w),
                       .h = static_cast<float> (surface2->h) };
+  using colors::BLACK;
   bool render_success
       = SDL_SetRenderDrawColor (m_renderer, BLACK.r, BLACK.g, BLACK.b, BLACK.a)
         && SDL_RenderClear (m_renderer)
@@ -325,6 +323,7 @@ Game::render_running ()
       m_field.update ();
       accumulator -= tick_rate_ms;
     }
+  using colors::BLACK;
   bool render_success
       = SDL_SetRenderDrawColor (m_renderer, BLACK.r, BLACK.g, BLACK.b, BLACK.a)
         && SDL_RenderClear (m_renderer);

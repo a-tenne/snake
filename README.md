@@ -18,7 +18,7 @@ A my own spin on the popular 80's classic with the same name.
 
 ## About the Project
 
-This project is a very basic implementation of [Snake](https://en.wikipedia.org/wiki/Snake_(video_game_genre)). It's written entirely in C++ and rendered using the SDL3 and SDL3-ttf libraries, as well as using the free [PixelLetters Font](https://www.fontspace.com/pixelletters-font-f22954).
+This project is a very basic implementation of [Snake](https://en.wikipedia.org/wiki/Snake_(video_game_genre)). It's written entirely in C++23, tested with [googletest](https://github.com/google/googletest/tree/main) and rendered using the [SDL3](https://wiki.libsdl.org/SDL3/FrontPage)  and [SDL3-ttf](https://wiki.libsdl.org/SDL3_ttf/FrontPage) libraries, as well as using the free [PixelLetters Font](https://www.fontspace.com/pixelletters-font-f22954).
 
 ## Getting Started
 
@@ -35,13 +35,21 @@ This project is a very basic implementation of [Snake](https://en.wikipedia.org/
 
 ### Building the Project
 
-For all of the Operating Systems mentioned, the first few steps will always be the same:
+For all of the operating systems mentioned, the first few steps will always be the same:
 
 - Create a `build` folder
 - Change directory into that folder
 - Fetch SDL3 and SDL3-ttf and generate platform specific build files with `cmake ..`
+- Optional: add a release type flag with `cmake .. -DCMAKE_BUILD_TYPE=<type>`. The intended build types are "Release" and "Debug".
+- Optional: disable test building with `cmake .. -DBUILD_TESTING=OFF`
 
-After that following through, your build folder will either contain a `Makefile` on Linux/macOS or a `Snake.sln` file on Windows.
+Example cmake command: `cmake .. -DCMAKE_BUILD_TYPE="Release" -DBUILD_TESTING=OFF`
+
+After that your build folder will either contain a `Makefile` on Linux/macOS or a `Snake.sln` file on Windows.
+
+> [!NOTE]
+> If you are using Visual Studio and wish to see all files organized and shown correctly, you should open the project from Visual Studio as a "CMake Project" instead of doing all of the steps above. The CMake configuration's own solution file does not correctly represent the project yet.
+> This is due to me developing it primarily on Linux and is subject to change.
 
 To build the game with the Makefile, run `make`
 
@@ -88,3 +96,7 @@ Pressing Space will start the game, which spawns your snake in the center of the
 The game runs until the snake's head collides with its body or with a wall. You can always start a new game by pressing space again.
 
 ![Game Over](images/finish.png)
+
+## Tests
+
+The project is fully unit tested, rendering excluded. Tests get built automatically. To run them, type `ctest` in the build directory (on all platforms). Alternatively, they can be ran directly from Visual Studio on Windows.
