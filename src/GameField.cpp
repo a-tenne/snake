@@ -57,7 +57,9 @@ GameField::spawn_fruit ()
     {
       entity_coords.push_back (&part.get_point ());
     }
-  if(static_cast<ssize_t>(std::pow(m_side_length, 2)) - entity_coords.size() == 0) {
+  const long area = static_cast<long>(std::pow(m_side_length, 2));
+  const long num_entities = static_cast<long>(entity_coords.size());
+  if(area - num_entities == 0) {
     return;
   }
   const auto collides = [entity_coords] (int x, int y) {
