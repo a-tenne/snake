@@ -4,10 +4,9 @@
 #include "SDL3/SDL_rect.h"
 #include "SDL3/SDL_render.h"
 #include "gtest/gtest.h"
-#include <gtest/gtest.h>
 #include <stdexcept>
 
-constexpr Color TRANSPARENT{ 0, 0, 0, 0 };
+constexpr Color DUMMY_COLOR{ 0, 0, 0, 255 };
 
 std::ostream &
 operator<< (std::ostream &os, const Entity &entity)
@@ -19,20 +18,20 @@ operator<< (std::ostream &os, const Entity &entity)
 struct EntityTest : testing::Test
 {
   Entity entity;
-  EntityTest () : entity{ 0, 0, TRANSPARENT } {}
+  EntityTest () : entity{ 0, 0, DUMMY_COLOR } {}
 };
 
 TEST_F (EntityTest, Collides)
 {
-  ASSERT_TRUE (entity.collides (Entity{ 0, 0, TRANSPARENT }));
+  ASSERT_TRUE (entity.collides (Entity{ 0, 0, DUMMY_COLOR }));
 }
 TEST_F (EntityTest, DifferentX)
 {
-  ASSERT_FALSE (entity.collides (Entity{ 1, 0, TRANSPARENT }));
+  ASSERT_FALSE (entity.collides (Entity{ 1, 0, DUMMY_COLOR }));
 }
 TEST_F (EntityTest, DifferentY)
 {
-  ASSERT_FALSE (entity.collides (Entity{ 0, 1, TRANSPARENT }));
+  ASSERT_FALSE (entity.collides (Entity{ 0, 1, DUMMY_COLOR }));
 }
 
 struct EntityRenderFail : testing::Test
@@ -44,9 +43,16 @@ struct EntityRenderFail : testing::Test
 
 TEST_F (EntityRenderFail, BadRendererThrows)
 {
-  Entity entity (0, 0, TRANSPARENT);
+  Entity entity (0, 0, DUMMY_COLOR);
   EXPECT_THROW (entity.render (*dummy_renderer, dummy_rect, dummy_len),
                 std::runtime_error);
+}
+
+TEST_F(EntityRenderFail, RectNotSquareThrows) {
+  Entity entity (0,0,DUMMY_COLOR);
+  dummy_rect.h += dummy_rect.w;
+  EXPECT_THROW (entity.render (*dummy_renderer, dummy_rect, dummy_len),
+                std::logic_error);
 }
 
 struct EntityRenderFailParam : EntityRenderFail,
@@ -62,10 +68,10 @@ TEST_P (EntityRenderFailParam, BadCoordThrows)
 }
 
 INSTANTIATE_TEST_SUITE_P (XTooLow, EntityRenderFailParam,
-                          testing::Values (Entity (-1, 0, TRANSPARENT)));
+                          testing::Values (Entity (-1, 0, DUMMY_COLOR)));
 INSTANTIATE_TEST_SUITE_P (XTooHigh, EntityRenderFailParam,
-                          testing::Values (Entity (50, 0, TRANSPARENT)));
+                          testing::Values (Entity (50, 0, DUMMY_COLOR)));
 INSTANTIATE_TEST_SUITE_P (YTooLow, EntityRenderFailParam,
-                          testing::Values (Entity (0, -1, TRANSPARENT)));
+                          testing::Values (Entity (0, -1, DUMMY_COLOR)));
 INSTANTIATE_TEST_SUITE_P (YTooHigh, EntityRenderFailParam,
-                          testing::Values (Entity (0, 50, TRANSPARENT)));
+                          testing::Values (Entity (0, 50, DUMMY_COLOR)));

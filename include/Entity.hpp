@@ -36,7 +36,7 @@ public:
    * @param side_length The number of cells per row/column in the grid.
    *
    * @throws std::logic_error if the entity is positioned outside the valid
-   * range.
+   * range or if the border parameter's height does not equal its width.
    * @throws std::runtime_error if SDL rendering fails.
    */
   void render (SDL_Renderer &renderer, const SDL_FRect &border,

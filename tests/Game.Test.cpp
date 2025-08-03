@@ -3,7 +3,6 @@
 #include <limits>
 #define SDL_MAIN_HANDLED
 #include "Game.hpp"
-#include <gtest/gtest.h>
 #include <stdexcept>
 #include <string>
 

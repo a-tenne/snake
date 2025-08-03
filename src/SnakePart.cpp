@@ -13,6 +13,7 @@ void
 SnakePart::move ()
 {
   constexpr auto fn_name = PRETTY_FN_NAME;
+
   switch (m_direction)
     {
     case Direction::UP:

@@ -33,20 +33,27 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(SDL3_ttf)
 
 file(GLOB_RECURSE SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp)
+list(REMOVE_ITEM TEST_SOURCES ${PROJECT_SOURCE_DIR}/src/main.cpp)
 
-add_executable(${PROJECT_NAME} ${SOURCES})
+add_library(${PROJECT_NAME}Lib ${SOURCES})
+add_executable(${PROJECT_NAME} ${PROJECT_SOURCE_DIR}/src/main.cpp)
 
 if(MSVC)
+  target_compile_options(${PROJECT_NAME}Lib PRIVATE /W4 /WX)
   target_compile_options(${PROJECT_NAME} PRIVATE /W4 /WX)
 elseif(CMAKE_BUILD_TYPE STREQUAL "Debug")
+  target_compile_options(${PROJECT_NAME}Lib PRIVATE -Wall -Werror -pedantic -fsanitize=address,undefined)
   target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Werror -pedantic -fsanitize=address,undefined)
   target_link_options(${PROJECT_NAME} PRIVATE -fsanitize=address,undefined)
 else()
+  target_compile_options(${PROJECT_NAME}Lib PRIVATE -Wall -Werror -pedantic)
   target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Werror -pedantic)
 endif()
 set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT ${PROJECT_NAME})
-target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/include)
-target_link_libraries(${PROJECT_NAME} PRIVATE SDL3-static SDL3_ttf-static)
+target_include_directories(${PROJECT_NAME}Lib PRIVATE ${PROJECT_SOURCE_DIR}/include)
+target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/include ${SDL3_SOURCE_DIR}/include ${SDL3_ttf_SOURCE_DIR}/include)
+target_link_libraries(${PROJECT_NAME}Lib PRIVATE SDL3-static SDL3_ttf-static)
+target_link_libraries(${PROJECT_NAME} PRIVATE ${PROJECT_NAME}Lib)
 add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
   COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_LIST_DIR}/assets $<TARGET_FILE_DIR:${PROJECT_NAME}>/assets
 )
@@ -54,6 +61,10 @@ add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
 option(BUILD_TESTING "Build unit tests" ON)
 
 if(BUILD_TESTING)
+  # we don't need mock tests
+  set(INSTALL_GMOCK OFF)
+  set(BUILD_GMOCK OFF)
+
   FetchContent_Declare(
     googletest
     GIT_REPOSITORY https://github.com/google/googletest.git
@@ -63,8 +74,6 @@ if(BUILD_TESTING)
   enable_testing()
 
   file(GLOB_RECURSE TEST_SOURCES ${PROJECT_SOURCE_DIR}/tests/*.cpp)
-  list(APPEND TEST_SOURCES ${SOURCES})
-  list(REMOVE_ITEM TEST_SOURCES ${PROJECT_SOURCE_DIR}/src/main.cpp)
   add_executable(Tests ${TEST_SOURCES})
   if (MSVC)
     target_compile_options(Tests PRIVATE /W4 /WX)
@@ -72,8 +81,8 @@ if(BUILD_TESTING)
     target_compile_options(Tests PRIVATE -Wall -Werror -pedantic -fsanitize=address,undefined)
     target_link_options(Tests PRIVATE -fsanitize=address,undefined)
   endif()
-  target_include_directories(Tests PRIVATE ${PROJECT_SOURCE_DIR}/include)
-  target_link_libraries(Tests PRIVATE SDL3-static SDL3_ttf-static gtest)
+  target_include_directories(Tests PRIVATE ${PROJECT_SOURCE_DIR}/include ${SDL3_SOURCE_DIR}/include ${SDL3_ttf_SOURCE_DIR}/include)
+  target_link_libraries(Tests PRIVATE gtest ${PROJECT_NAME}Lib)
   add_custom_command(TARGET Tests POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_LIST_DIR}/assets $<TARGET_FILE_DIR:Tests>/assets
   )

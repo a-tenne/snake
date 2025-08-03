@@ -1,6 +1,5 @@
 #include "Entity.hpp"
 #include "util.hpp"
-#include <algorithm>
 #include <format>
 #include <stdexcept>
 
@@ -25,22 +24,30 @@ Entity::render (SDL_Renderer &renderer, const SDL_FRect &border,
       throw std::logic_error (
           std::format ("Invalid x coordinate in {}: {}", fn_name, m_point.x));
     }
+
   if (m_point.y < 0 || m_point.y >= side_length) [[unlikely]]
     {
       throw std::logic_error (
           std::format ("Invalid y coordinate in {}: {}", fn_name, m_point.y));
     }
-  float cell_width
+
+  if (border.w != border.h) [[unlikely]]
+    {
+      throw std::logic_error (
+          std::format ("Border width in {} is {} and height is {}. They "
+                       "should be the same",
+                       fn_name, border.w, border.h));
+    }
+  float cell_size
       = calculate_dimension (static_cast<int> (border.w), side_length);
-  float cell_height
-      = calculate_dimension (static_cast<int> (border.h), side_length);
-  float cell_size = std::min (cell_width, cell_height);
 
   SDL_FRect frect;
   frect.h = cell_size;
   frect.w = cell_size;
-  frect.x = m_point.x * cell_width + border.x;
-  frect.y = m_point.y * cell_height + border.y;
+  // scale the logical coordinates with the side and offset by border
+  frect.x = m_point.x * cell_size + border.x;
+  frect.y = m_point.y * cell_size + border.y;
+
   bool render_success
       = SDL_SetRenderDrawColor (&renderer, m_color.r, m_color.g, m_color.b,
                                 m_color.a)

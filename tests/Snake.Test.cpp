@@ -1,7 +1,7 @@
 #include "Snake.hpp"
 #include "SnakeMovementTuple.hpp"
 #include "SnakePart.hpp"
-#include <gtest/gtest.h>
+#include "gtest/gtest.h"
 #include <ranges>
 #include <stdexcept>
 

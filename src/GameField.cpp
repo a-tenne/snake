@@ -19,16 +19,20 @@ GameField::GameField (int side_length, int num_fruits)
       m_num_fruits{ num_fruits }
 {
   constexpr auto fn_name = PRETTY_FN_NAME;
+
   if (side_length <= 0)
     {
       throw std::invalid_argument (std::format (
           "Invalid width passed to {}: {}", fn_name, side_length));
     }
+
   if (num_fruits <= 0)
     {
       throw std::invalid_argument (std::format (
           "Invalid number of fruits passed to {}: {}", fn_name, num_fruits));
     }
+  // since the field is a square, the amount of cells is the side length
+  // squared the 1 represents the one snake head that is initially spawned
   if (double spaces_available = std::pow (side_length, 2) - 1;
       num_fruits > spaces_available)
     {
@@ -53,9 +57,13 @@ GameField::spawn_fruit ()
     {
       entity_coords.push_back (&part.get_point ());
     }
+  if(static_cast<ssize_t>(std::pow(m_side_length, 2)) - entity_coords.size() == 0) {
+    return;
+  }
   const auto collides = [entity_coords] (int x, int y) {
     return std::find_if (entity_coords.begin (), entity_coords.end (),
                          [x, y] (const Point *p) {
+                           // the nullptr check is for my own sanity
                            return p != nullptr && p->x == x && p->y == y;
                          })
            != entity_coords.end ();
@@ -229,10 +237,6 @@ GameField::change_snake_direction (Direction dir)
 void
 GameField::init ()
 {
-  for ([[maybe_unused]] int _ : std::ranges::views::iota (0, m_num_fruits))
-    {
-      spawn_fruit ();
-    }
   int x_snake = std::rand () % (m_side_length / 2) + m_side_length / 4;
   int y_snake = std::rand () % (m_side_length / 2) + m_side_length / 4;
 
@@ -262,6 +266,11 @@ GameField::init ()
     }
   m_snake = Snake::create_snake (x_snake, y_snake, dir);
   m_snake_alive = true;
+
+  for ([[maybe_unused]] int _ : std::ranges::views::iota (0, m_num_fruits))
+    {
+      spawn_fruit ();
+    }
 }
 void
 GameField::clear ()

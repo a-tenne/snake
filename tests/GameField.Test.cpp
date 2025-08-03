@@ -1,5 +1,5 @@
 #include "GameField.hpp"
-#include <gtest/gtest.h>
+#include "gtest/gtest.h"
 #include <limits>
 #include <ranges>
 #include <stdexcept>
