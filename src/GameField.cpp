@@ -57,11 +57,12 @@ GameField::spawn_fruit ()
     {
       entity_coords.push_back (&part.get_point ());
     }
-  const long area = static_cast<long>(std::pow(m_side_length, 2));
-  const long num_entities = static_cast<long>(entity_coords.size());
-  if(area - num_entities == 0) {
-    return;
-  }
+  const long area = static_cast<long> (std::pow (m_side_length, 2));
+  const long num_entities = static_cast<long> (entity_coords.size ());
+  if (area - num_entities == 0)
+    {
+      return;
+    }
   const auto collides = [entity_coords] (int x, int y) {
     return std::find_if (entity_coords.begin (), entity_coords.end (),
                          [x, y] (const Point *p) {
@@ -86,38 +87,41 @@ GameField::render (SDL_Renderer &renderer, int window_height,
                    int window_width) const
 {
   using colors::GRAY, colors::YELLOW;
+  // do not render last frame if it's a collision
   if (wall_collides ())
     {
       return;
     }
   SDL_FRect border;
+  // The difference between window height and width is used to offset the
+  // border position, and is divided by 2 to center it
   float diff = static_cast<float> (std::abs (window_height - window_width));
   border.x = window_width > window_height ? diff / 2 : 0;
   border.y = window_height > window_width ? diff / 2 : 0;
-  border.w = window_width > window_height ? window_width - diff : window_width;
-  border.h
-      = window_height > window_width ? window_height - diff : window_height;
-  float cell_width
-      = calculate_dimension (static_cast<int> (border.w), m_side_length);
-  float cell_height
-      = calculate_dimension (static_cast<int> (border.h), m_side_length);
-  float cell_size = std::min (cell_width, cell_height);
 
+  float length = static_cast<float> (std::min (window_width, window_height));
+  border.w = length;
+  border.h = length;
+
+  // Calculate the size for a square
+  float cell_size
+      = calculate_dimension (static_cast<int> (length), m_side_length);
+
+  // Fill every second cell within the border to be gray, creating that chess
+  // board look
   std::vector<SDL_FRect> gray_rects;
   gray_rects.reserve (static_cast<size_t> (std::pow (m_side_length, 2) / 2.0));
-  constexpr auto range = std::ranges::views::iota;
-  for (int i : range (0, m_side_length))
+  for (int i : std::views::iota (0, m_side_length))
     {
-      for (int j : range (0, m_side_length))
+      // Writing this inner loop in any other way I found is way too
+      // complicated
+      for (int j = i % 2; j < m_side_length; j += 2)
         {
-          if (i % 2 != j % 2)
-            {
-              float h = cell_size;
-              float w = cell_size;
-              float x = i * cell_width + border.x;
-              float y = j * cell_height + border.y;
-              gray_rects.emplace_back (x, y, w, h);
-            }
+          float h = cell_size;
+          float w = cell_size;
+          float x = i * cell_size + border.x;
+          float y = j * cell_size + border.y;
+          gray_rects.emplace_back (x, y, w, h);
         }
     }
   bool render_success
@@ -128,15 +132,18 @@ GameField::render (SDL_Renderer &renderer, int window_height,
     {
       sdl_exit_error ();
     }
+
   m_snake.get_head ().render (renderer, border, m_side_length);
   for (auto &part : m_snake.get_body ())
     {
       part.render (renderer, border, m_side_length);
     }
-  for (auto &entity : m_fruits)
+
+  for (auto &fruit: m_fruits)
     {
-      entity->render (renderer, border, m_side_length);
+      fruit->render (renderer, border, m_side_length);
     }
+
   render_success = SDL_SetRenderDrawColor (&renderer, YELLOW.r, YELLOW.g,
                                            YELLOW.b, YELLOW.a)
                    && SDL_RenderRect (&renderer, &border);
@@ -153,23 +160,28 @@ GameField::update ()
     {
       return;
     }
+
+  // Clear direction buffer
   if (m_dir_buffer != Direction::INVALID)
     {
       m_snake.set_direction (m_dir_buffer);
       m_dir_buffer = Direction::INVALID;
     }
   m_snake.move ();
+
+  // Kill conditions
   if (wall_collides () || self_collides ())
     {
       m_snake_alive = false;
       return;
     }
+
+  // Find out if snake head collides with any fruits
   auto fruit_iter
       = std::find_if (m_fruits.begin (), m_fruits.end (), [this] (auto &f) {
-          auto snake_head = m_snake.get_head ();
-          return f->get_x () == snake_head.get_x ()
-                 && f->get_y () == snake_head.get_y ();
+          return m_snake.get_head().collides(*f);
         });
+
   if (fruit_iter != m_fruits.end ())
     {
       m_snake.eat_fruit ();
@@ -261,10 +273,12 @@ GameField::init ()
     case 3:
       dir = Direction::RIGHT;
       break;
+#ifndef NDEBUG
     default:
       throw std::logic_error (
           std::format ("Invalid direction in {}", fn_name));
       break;
+#endif
     }
   m_snake = Snake::create_snake (x_snake, y_snake, dir);
   m_snake_alive = true;

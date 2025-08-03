@@ -129,7 +129,9 @@ Game::handle_event (SDL_Event &event)
       m_running = false;
       break;
     case SDL_EVENT_WINDOW_RESIZED:
-      SDL_GetWindowSize (m_window, &m_width, &m_height);
+      if(!SDL_GetWindowSize (m_window, &m_width, &m_height)) {
+        sdl_exit_error();
+      }
       break;
     case SDL_EVENT_WINDOW_ENTER_FULLSCREEN:
       m_is_fullscreen = true;
@@ -172,7 +174,9 @@ Game::handle_event (SDL_Event &event)
           m_running = false;
           break;
         case SDLK_RETURN:
-          SDL_SetWindowFullscreen (m_window, !m_is_fullscreen);
+      if(!SDL_SetWindowFullscreen (m_window, !m_is_fullscreen)) {
+        sdl_exit_error();
+      }
           break;
         case SDLK_SPACE:
           switch (m_state)

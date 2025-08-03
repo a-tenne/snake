@@ -15,6 +15,8 @@ A my own spin on the popular 80's classic with the same name.
         - [Start Screen](#start-screen)
         - [Game](#game)
         - [Game Over Screen](#game-over-screen)
+- [Tests](#tests)
+- [Documentation](#documentation)
 
 ## About the Project
 

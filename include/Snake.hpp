@@ -8,6 +8,7 @@
 
 #pragma once
 
+#include "Fruit.hpp"
 #include "SnakePart.hpp"
 #include <vector>
 

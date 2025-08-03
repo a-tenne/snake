@@ -50,7 +50,7 @@ public:
         int fps);
 
   /**
-   * @brief Cleans up all allocated SDL and TTF resources.
+   * @brief Cleans up all allocated SDL and SDL_ttf resources.
    */
   ~Game ();
 
@@ -66,27 +66,33 @@ private:
   /**
    * @brief Handles an incoming SDL event.
    * @param event The SDL event to process.
+   * @throws std::runtime_error via sdl_exit_error() on SDL event failures.
    */
   void handle_event (SDL_Event &event);
 
   /**
    * @brief Renders the start screen.
+   * @throws std::runtime_error via render_text_fields() on SDL render failures.
    */
   void render_start ();
 
   /**
    * @brief Renders the game while running.
+   * @throws std::runtime_error via sdl_exit_error() on SDL render failures.
    */
   void render_running ();
 
   /**
    * @brief Renders the game over (finish) screen.
+   * @throws std::runtime_error via render_text_fields() on SDL render failures.
    */
   void render_fini ();
 
   /**
    * @brief Renders the current high score on screen.
    * @return true if rendering succeeded, false otherwise.
+   * @throws std::runtime_error via sdl_exit_error() on SDL surface or texture
+   * creation failures.
    */
   bool render_high_score ();
 
@@ -95,11 +101,13 @@ private:
    * @param field1 The first text line to render.
    * @param field2 The second text line to render.
    * @param show_high_score Whether to render the high score below.
+   * @throws std::runtime_error via sdl_exit_error() on SDL render failures.
    */
   void render_text_fields (std::string_view field1, std::string_view field2,
                            bool show_high_score);
 
-  // Custom deleter template for SDL resources, used with unique_ptr.
+private:
+  /// Custom deleter template for SDL resources, used with std::unique_ptr.
   template <typename T, void (*F) (T *)> struct SDL_deleter
   {
     void
@@ -111,8 +119,7 @@ private:
         }
     }
   };
-
-private:
+  /// Template wrapper for using std::unique_ptr with SDL_deleter.
   template <typename T, void (*F) (T *)>
   using sdl_unique = std::unique_ptr<T, SDL_deleter<T, F>>;
 
@@ -121,7 +128,7 @@ private:
    * cleanup.
    *
    * Wraps an SDL_Surface pointer and calls SDL_DestroySurface automatically
-   * when the pointer goes out of scope, preventing memory leaks.
+   * when the pointer goes out of scope.
    */
   using surface_unique = sdl_unique<SDL_Surface, SDL_DestroySurface>;
 
@@ -130,10 +137,9 @@ private:
    * cleanup.
    *
    * Wraps an SDL_Texture pointer and calls SDL_DestroyTexture automatically
-   * when the pointer goes out of scope, preventing memory leaks.
+   * when the pointer goes out of scope.
    */
   using texture_unique = sdl_unique<SDL_Texture, SDL_DestroyTexture>;
-
 
 private:
   /**

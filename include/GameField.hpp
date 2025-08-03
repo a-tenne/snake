@@ -52,6 +52,7 @@ public:
 
   /**
    * @brief Initializes the game by spawning fruits and creating a new snake.
+   * @throws std::logic_error If value generated is not a valid direction, which should never happen.
    */
   void init();
 

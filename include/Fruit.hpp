@@ -10,7 +10,6 @@
 
 /**
  * @brief Represents a fruit entity that can be collected by the player.
- *
  * Inherits from Entity and uses a predefined color to distinguish fruits from other game elements.
  */
 class Fruit : public Entity
