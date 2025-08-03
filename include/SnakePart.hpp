@@ -44,11 +44,7 @@ public:
    * @param dir The initial movement direction of the part.
    * @return A SnakePart initialized with the given parameters.
    */
-  static inline SnakePart
-  create_part (int x, int y, Direction dir)
-  {
-    return SnakePart (x, y, dir);
-  }
+  static SnakePart create_part (int x, int y, Direction dir);
 
   /**
    * @brief Factory method for creating a SnakePart object with invalid state.
@@ -56,31 +52,19 @@ public:
    * will most certainly lead to an error.
    * @return A SnakePart positioned at INVALID_POS and with INVALID direction.
    */
-  static inline SnakePart
-  create_invalid ()
-  {
-    return SnakePart (INVALID_POS, INVALID_POS, Direction::INVALID);
-  }
+  static SnakePart create_invalid ();
 
   /**
    * @brief Retrieves the current direction of the part.
    * @return The direction the part is currently moving in.
    */
-  inline Direction
-  get_direction () const
-  {
-    return m_direction;
-  }
+  Direction get_direction () const;
 
   /**
    * @brief Sets the movement direction of the part.
    * @param dir The direction to set.
    */
-  inline void
-  set_direction (Direction dir)
-  {
-    m_direction = dir;
-  }
+  void set_direction (Direction dir);
 
   /**
    * @brief Moves the part in its current direction by one unit.

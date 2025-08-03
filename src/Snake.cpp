@@ -34,3 +34,32 @@ Snake::eat_fruit ()
   m_body.push_back (m_last_pos);
   m_last_pos = SnakePart::create_invalid ();
 }
+Snake
+Snake::create_snake (int x_head, int y_head, Direction dir)
+{
+  return Snake (x_head, y_head, dir);
+}
+
+Snake
+Snake::create_invalid ()
+{
+  return Snake (INVALID_POS, INVALID_POS, Direction::INVALID);
+}
+
+void
+Snake::set_direction (Direction dir)
+{
+  m_head.set_direction (dir);
+}
+
+const SnakePart &
+Snake::get_head () const
+{
+  return m_head;
+}
+
+const std::vector<SnakePart> &
+Snake::get_body () const
+{
+  return m_body;
+}

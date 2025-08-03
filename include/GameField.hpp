@@ -74,21 +74,13 @@ public:
    * @brief Checks if the snake is alive.
    * @return True if the snake is alive, false otherwise.
    */
-  inline bool
-  is_snake_alive () const
-  {
-    return m_snake_alive;
-  }
+  bool is_snake_alive () const;
 
   /**
    * @brief Gets the current score, defined as the snake's body length.
    * @return The number of segments in the snake's body.
    */
-  inline int
-  get_score () const
-  {
-    return static_cast<int> (m_snake.get_body ().size ());
-  }
+  int get_score () const;
 
 private:
   /**

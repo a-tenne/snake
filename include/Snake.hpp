@@ -8,7 +8,6 @@
 
 #pragma once
 
-#include "Fruit.hpp"
 #include "SnakePart.hpp"
 #include <vector>
 
@@ -28,11 +27,7 @@ public:
    * @param dir Initial direction of the snake.
    * @return A fully initialized Snake instance.
    */
-  static inline Snake
-  create_snake (int x_head, int y_head, Direction dir)
-  {
-    return Snake (x_head, y_head, dir);
-  }
+  static Snake create_snake (int x_head, int y_head, Direction dir);
 
   /**
    * @brief Factory method for creating a Snake object with invalid state.
@@ -40,41 +35,25 @@ public:
    * will most certainly lead to an error.
    * @return A Snake initialized in an invalid state.
    */
-  static inline Snake
-  create_invalid ()
-  {
-    return Snake (INVALID_POS, INVALID_POS, Direction::INVALID);
-  }
+  static Snake create_invalid ();
 
   /**
    * @brief Sets the direction the snake's head should move in.
    * @param dir New movement direction.
    */
-  inline void
-  set_direction (Direction dir)
-  {
-    m_head.set_direction (dir);
-  }
+  void set_direction (Direction dir);
 
   /**
    * @brief Returns a const reference to the snake's head.
    * @return const reference to the SnakePart representing the head.
    */
-  inline const SnakePart &
-  get_head () const
-  {
-    return m_head;
-  }
+  const SnakePart &get_head () const;
 
   /**
    * @brief Returns a const reference to the snake's body.
    * @return const reference to the vector of SnakePart representing the body.
    */
-  inline const std::vector<SnakePart> &
-  get_body () const
-  {
-    return m_body;
-  }
+  const std::vector<SnakePart> &get_body () const;
 
   /**
    * @brief Moves the snake one step forward.

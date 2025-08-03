@@ -255,9 +255,7 @@ GameField::init ()
   int y_snake = std::rand () % (m_side_length / 2) + m_side_length / 4;
 
   int dir_num = std::rand () % 4;
-  Direction dir;
-
-  constexpr auto fn_name = PRETTY_FN_NAME;
+  Direction dir = Direction::INVALID;
 
   switch (dir_num)
     {
@@ -275,6 +273,7 @@ GameField::init ()
       break;
 #ifndef NDEBUG
     default:
+      constexpr auto fn_name = PRETTY_FN_NAME;
       throw std::logic_error (
           std::format ("Invalid direction in {}", fn_name));
       break;
@@ -294,4 +293,15 @@ GameField::clear ()
   m_fruits.clear ();
   m_snake = Snake::create_invalid ();
   m_snake_alive = false;
+}
+bool
+GameField::is_snake_alive () const
+{
+  return m_snake_alive;
+}
+
+int
+GameField::get_score () const
+{
+  return static_cast<int> (m_snake.get_body ().size ());
 }

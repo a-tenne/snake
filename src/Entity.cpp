@@ -57,3 +57,32 @@ Entity::render (SDL_Renderer &renderer, const SDL_FRect &border,
       sdl_exit_error ();
     }
 }
+int
+Entity::get_x () const
+{
+  return m_point.x;
+}
+
+int
+Entity::get_y () const
+{
+  return m_point.y;
+}
+
+const Point &
+Entity::get_point () const
+{
+  return m_point;
+}
+
+void
+Entity::set_x (int x)
+{
+  m_point.x = x;
+}
+
+void
+Entity::set_y (int y)
+{
+  m_point.y = y;
+}

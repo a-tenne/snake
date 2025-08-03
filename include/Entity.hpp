@@ -50,39 +50,19 @@ public:
   bool collides (const Entity &other) const;
 
   /// @brief Gets the x coordinate of the entity.
-  inline int
-  get_x () const
-  {
-    return m_point.x;
-  }
+  int get_x () const;
 
   /// @brief Gets the y coordinate of the entity.
-  inline int
-  get_y () const
-  {
-    return m_point.y;
-  }
+  int get_y () const;
 
   /// @brief Returns a const reference to the entity's position.
-  inline const Point &
-  get_point () const
-  {
-    return m_point;
-  }
+  const Point &get_point () const;
 
   /// @brief Sets the x coordinate of the entity.
-  inline void
-  set_x (int x)
-  {
-    m_point.x = x;
-  }
+  void set_x (int x);
 
   /// @brief Sets the y coordinate of the entity.
-  inline void
-  set_y (int y)
-  {
-    m_point.y = y;
-  }
+  void set_y (int y);
 
 protected:
   Point m_point; ///< The entity's 2D grid position.
