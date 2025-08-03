@@ -18,9 +18,11 @@ main (int argc, char *const argv[])
   try
     {
       std::string font_path = resolve_font_path (argc, argv);
-      using namespace config;
-      Game game (NAME, WINDOW_WIDTH, WINDOW_HEIGHT, SDL_FLAGS, WINDOW_FLAGS,
-                 font_path, TICKS_PER_SECOND, FRAME_RATE);
+      // This constructor has a lot of parameters in order to facilitate unit
+      // testing
+      Game game (config::NAME, config::WINDOW_WIDTH, config::WINDOW_HEIGHT,
+                 config::SDL_FLAGS, config::WINDOW_FLAGS, font_path,
+                 config::TICKS_PER_SECOND, config::FRAME_RATE);
       game.run ();
     }
   catch (const std::exception &e)

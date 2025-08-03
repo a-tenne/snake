@@ -29,8 +29,7 @@ Snake::eat_fruit ()
 {
   if (m_last_pos.get_direction () == Direction::INVALID) [[unlikely]]
     {
-      throw std::logic_error (
-          "Snake cannot consume a fruit before moving");
+      throw std::logic_error ("Snake cannot consume a fruit before moving");
     }
   m_body.push_back (m_last_pos);
   m_last_pos = SnakePart::create_invalid ();

@@ -1,7 +1,8 @@
 /**
  * @file Fruit.hpp
  * @author Alexsander d. S. Tenne
- * @brief Declares the Fruit class, a specialized Entity representing a collectible item in the game.
+ * @brief Declares the Fruit class, a specialized Entity representing a
+ * collectible item in the game.
  * @version 1.0.0
  * @date 02/08/2025
  */
@@ -10,7 +11,8 @@
 
 /**
  * @brief Represents a fruit entity that can be collected by the player.
- * Inherits from Entity and uses a predefined color to distinguish fruits from other game elements.
+ * Inherits from Entity and uses a predefined color to distinguish fruits from
+ * other game elements.
  */
 class Fruit : public Entity
 {
@@ -22,4 +24,3 @@ public:
    */
   Fruit (int x, int y);
 };
-

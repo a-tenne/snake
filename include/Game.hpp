@@ -72,7 +72,8 @@ private:
 
   /**
    * @brief Renders the start screen.
-   * @throws std::runtime_error via render_text_fields() on SDL render failures.
+   * @throws std::runtime_error via render_text_fields() on SDL render
+   * failures.
    */
   void render_start ();
 
@@ -84,7 +85,8 @@ private:
 
   /**
    * @brief Renders the game over (finish) screen.
-   * @throws std::runtime_error via render_text_fields() on SDL render failures.
+   * @throws std::runtime_error via render_text_fields() on SDL render
+   * failures.
    */
   void render_fini ();
 

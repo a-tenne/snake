@@ -139,7 +139,7 @@ GameField::render (SDL_Renderer &renderer, int window_height,
       part.render (renderer, border, m_side_length);
     }
 
-  for (auto &fruit: m_fruits)
+  for (auto &fruit : m_fruits)
     {
       fruit->render (renderer, border, m_side_length);
     }
@@ -179,7 +179,7 @@ GameField::update ()
   // Find out if snake head collides with any fruits
   auto fruit_iter
       = std::find_if (m_fruits.begin (), m_fruits.end (), [this] (auto &f) {
-          return m_snake.get_head().collides(*f);
+          return m_snake.get_head ().collides (*f);
         });
 
   if (fruit_iter != m_fruits.end ())

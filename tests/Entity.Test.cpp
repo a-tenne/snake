@@ -48,8 +48,9 @@ TEST_F (EntityRenderFail, BadRendererThrows)
                 std::runtime_error);
 }
 
-TEST_F(EntityRenderFail, RectNotSquareThrows) {
-  Entity entity (0,0,DUMMY_COLOR);
+TEST_F (EntityRenderFail, RectNotSquareThrows)
+{
+  Entity entity (0, 0, DUMMY_COLOR);
   dummy_rect.h += dummy_rect.w;
   EXPECT_THROW (entity.render (*dummy_renderer, dummy_rect, dummy_len),
                 std::logic_error);

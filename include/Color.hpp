@@ -1,7 +1,8 @@
 /**
  * @file Color.hpp
  * @author Alexsander d. S. Tenne
- * @brief Defines an RGBA color struct and provides commonly used color constants in a namespace.
+ * @brief Defines an RGBA color struct and provides commonly used color
+ * constants in a namespace.
  * @version 1.0.0
  * @date 02/08/2025
  */
@@ -24,20 +25,20 @@ struct Color
 /**
  * @brief Contains predefined color constants used across the application.
  */
-namespace colors {
-  /// @brief Constant color value for red.
-  constexpr Color RED{ 255, 0, 0, 1 };
+namespace colors
+{
+/// @brief Constant color value for red.
+constexpr Color RED{ 255, 0, 0, 1 };
 
-  /// @brief Constant color value for green.
-  constexpr Color GREEN{ 0, 255, 0, 1 };
+/// @brief Constant color value for green.
+constexpr Color GREEN{ 0, 255, 0, 1 };
 
-  /// @brief Constant color value for black.
-  constexpr Color BLACK{ 0, 0, 0, 1 };
+/// @brief Constant color value for black.
+constexpr Color BLACK{ 0, 0, 0, 1 };
 
-  /// @brief Constant color value for yellow.
-  constexpr Color YELLOW{ 255, 255, 0, 1 };
+/// @brief Constant color value for yellow.
+constexpr Color YELLOW{ 255, 255, 0, 1 };
 
-  /// @brief Constant color value for dark gray.
-  constexpr Color GRAY{ 60, 60, 60, 1 };
+/// @brief Constant color value for dark gray.
+constexpr Color GRAY{ 60, 60, 60, 1 };
 }
-

@@ -51,9 +51,9 @@ public:
   }
 
   /**
-   * @brief Factory method for creating a SnakePart object with invalid state. Trying
-   * to do anything useful with this without initializing modifying it will
-   * most certainly lead to an error.
+   * @brief Factory method for creating a SnakePart object with invalid state.
+   * Trying to do anything useful with this without initializing modifying it
+   * will most certainly lead to an error.
    * @return A SnakePart positioned at INVALID_POS and with INVALID direction.
    */
   static inline SnakePart

@@ -31,7 +31,7 @@
  * This function should be called when an SDL function fails and an error needs
  * to be propagated.
  *
- * @throws std::runtime_error with SDL error message.
+ * @throws std::runtime_error With SDL error message.
  */
 void sdl_exit_error ();
 

@@ -28,18 +28,20 @@ public:
    * @param dir Initial direction of the snake.
    * @return A fully initialized Snake instance.
    */
-  static inline Snake create_snake (int x_head, int y_head, Direction dir)
+  static inline Snake
+  create_snake (int x_head, int y_head, Direction dir)
   {
     return Snake (x_head, y_head, dir);
   }
 
   /**
-   * @brief Factory method for creating a Snake object with invalid state. Trying
-   * to do anything useful with this without initializing modifying it will
-   * most certainly lead to an error.
+   * @brief Factory method for creating a Snake object with invalid state.
+   * Trying to do anything useful with this without initializing modifying it
+   * will most certainly lead to an error.
    * @return A Snake initialized in an invalid state.
    */
-  static inline Snake create_invalid ()
+  static inline Snake
+  create_invalid ()
   {
     return Snake (INVALID_POS, INVALID_POS, Direction::INVALID);
   }
@@ -48,7 +50,8 @@ public:
    * @brief Sets the direction the snake's head should move in.
    * @param dir New movement direction.
    */
-  inline void set_direction (Direction dir)
+  inline void
+  set_direction (Direction dir)
   {
     m_head.set_direction (dir);
   }
@@ -57,7 +60,8 @@ public:
    * @brief Returns a const reference to the snake's head.
    * @return const reference to the SnakePart representing the head.
    */
-  inline const SnakePart& get_head () const
+  inline const SnakePart &
+  get_head () const
   {
     return m_head;
   }
@@ -66,7 +70,8 @@ public:
    * @brief Returns a const reference to the snake's body.
    * @return const reference to the vector of SnakePart representing the body.
    */
-  inline const std::vector<SnakePart>& get_body () const
+  inline const std::vector<SnakePart> &
+  get_body () const
   {
     return m_body;
   }
@@ -75,14 +80,16 @@ public:
    * @brief Moves the snake one step forward.
    *
    * Updates all parts of the snake to simulate movement.
-   * @throws std::logic_error if logic fails internally (in `SnakePart::move()`).
+   * @throws std::logic_error if logic fails internally (in
+   * `SnakePart::move()`).
    */
   void move ();
 
   /**
    * @brief Grows the snake by adding one new part at the tail.
    *
-   * Uses `m_last_pos` to determine the correct position and direction of the new segment.
+   * Uses `m_last_pos` to determine the correct position and direction of the
+   * new segment.
    * @throws std::logic_error if called before any movement occurs.
    */
   void eat_fruit ();
@@ -96,7 +103,8 @@ private:
    */
   Snake (int x_head, int y_head, Direction dir);
 
-  SnakePart m_head;               ///< The head of the snake.
+  SnakePart m_head;              ///< The head of the snake.
   std::vector<SnakePart> m_body; ///< The body parts of the snake.
-  SnakePart m_last_pos;          ///< Used to remember the tail's last position for growing.
+  SnakePart
+      m_last_pos; ///< Used to remember the tail's last position for growing.
 };

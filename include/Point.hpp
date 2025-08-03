@@ -10,7 +10,8 @@
 /**
  * @brief Represents a 2D point with integer coordinates.
  *
- * Provides an equality operator to compare two points based on their coordinates.
+ * Provides an equality operator to compare two points based on their
+ * coordinates.
  */
 struct Point
 {
@@ -22,7 +23,8 @@ struct Point
    * @param other The point to compare with.
    * @return true if both x and y coordinates match, false otherwise.
    */
-  bool operator== (const Point &other) const
+  bool
+  operator== (const Point &other) const
   {
     return x == other.x && y == other.y;
   }

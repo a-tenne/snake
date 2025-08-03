@@ -3,18 +3,19 @@
 #include "SDL3/SDL_video.h"
 #include "SDL3_ttf/SDL_ttf.h"
 #include "SnakePart.hpp"
+#include "config.hpp"
 #include "util.hpp"
 #include <ctime>
 #include <format>
 #include <stdexcept>
 #include <string_view>
-#include "config.hpp"
 
 Game::Game (std::string_view title, int width, int height,
             SDL_InitFlags sdl_flags, SDL_WindowFlags window_flags,
             std::string_view font_path, int tps, int fps)
-    : m_state{ GameState::START }, m_field{ config::SIDE_LENGTH, config::NUM_FRUITS },
-      m_width{ width }, m_height{ height }, m_tps{ tps }, m_fps{ fps }
+    : m_state{ GameState::START },
+      m_field{ config::SIDE_LENGTH, config::NUM_FRUITS }, m_width{ width },
+      m_height{ height }, m_tps{ tps }, m_fps{ fps }
 {
   constexpr auto fn_name = PRETTY_FN_NAME;
   constexpr auto param_gt_zero
@@ -39,8 +40,8 @@ Game::Game (std::string_view title, int width, int height,
     {
       sdl_exit_error ();
     }
-  if (m_font = TTF_OpenFont (font_path.data (), config::FONT_SIZE); m_font == nullptr)
-      [[unlikely]]
+  if (m_font = TTF_OpenFont (font_path.data (), config::FONT_SIZE);
+      m_font == nullptr) [[unlikely]]
     {
       sdl_exit_error ();
     }
@@ -129,9 +130,10 @@ Game::handle_event (SDL_Event &event)
       m_running = false;
       break;
     case SDL_EVENT_WINDOW_RESIZED:
-      if(!SDL_GetWindowSize (m_window, &m_width, &m_height)) {
-        sdl_exit_error();
-      }
+      if (!SDL_GetWindowSize (m_window, &m_width, &m_height))
+        {
+          sdl_exit_error ();
+        }
       break;
     case SDL_EVENT_WINDOW_ENTER_FULLSCREEN:
       m_is_fullscreen = true;
@@ -174,9 +176,10 @@ Game::handle_event (SDL_Event &event)
           m_running = false;
           break;
         case SDLK_RETURN:
-      if(!SDL_SetWindowFullscreen (m_window, !m_is_fullscreen)) {
-        sdl_exit_error();
-      }
+          if (!SDL_SetWindowFullscreen (m_window, !m_is_fullscreen))
+            {
+              sdl_exit_error ();
+            }
           break;
         case SDLK_SPACE:
           switch (m_state)
