@@ -39,17 +39,16 @@ For all of the operating systems mentioned, the first few steps will always be t
 
 - Create a `build` folder
 - Change directory into that folder
-- Fetch SDL3 and SDL3-ttf and generate platform specific build files with `cmake ..`
+- Fetch SDL3 and SDL3-ttf and generate platform specific build files with `cmake ..` which will take some time
 - Optional: add a release type flag with `cmake .. -DCMAKE_BUILD_TYPE=<type>`. The intended build types are "Release" and "Debug".
-- Optional: disable test building with `cmake .. -DBUILD_TESTING=OFF`
+- Optional: when building tests, googletest will also get fetched. Disable test building with `cmake .. -DBUILD_TESTING=OFF`
+
+> [!NOTE]
+> The custom build flags get ignored when using Visual Studio, due to it having its own build system that adds the compiler flags according to their build type.
 
 Example cmake command: `cmake .. -DCMAKE_BUILD_TYPE="Release" -DBUILD_TESTING=OFF`
 
 After that your build folder will either contain a `Makefile` on Linux/macOS or a `Snake.sln` file on Windows.
-
-> [!NOTE]
-> If you are using Visual Studio and wish to see all files organized and shown correctly, you should open the project from Visual Studio as a "CMake Project" instead of doing all of the steps above. The CMake configuration's own solution file does not correctly represent the project yet.
-> This is due to me developing it primarily on Linux and is subject to change.
 
 To build the game with the Makefile, run `make`
 
@@ -60,6 +59,9 @@ For Windows, you will need to follow these steps:
     - Or build the program via the build option on the top bar
 
 The binary file will be either directly in the `build` folder on macOS and Linux, or in the corresponding subfolder when building with Visual Studio (Release, Debug, ...).
+
+> [!NOTE]
+> With Visual Studio, you can also open the project folder as a "CMake project" instead of generating a build folder. The output files will all be in the new `out` directory and all Visual Studio configuration will live in `.vs`
 
 ### Running the Project
 
@@ -99,4 +101,13 @@ The game runs until the snake's head collides with its body or with a wall. You 
 
 ## Tests
 
-The project is fully unit tested, rendering excluded. Tests get built automatically. To run them, type `ctest` in the build directory (on all platforms). Alternatively, they can be ran directly from Visual Studio on Windows.
+The project is fully unit tested, rendering excluded (parts of rendering methods are tested, but the rendering itself is not). Tests get built automatically. To run them, type `ctest` in the build directory (on all platforms). Alternatively, they can be ran directly from Visual Studio via the GUI.
+
+## Documentation
+
+If you've been following along, you might have noticed the `docs` directory, which contains a `Doxyfile`. To generate a full documentation webpage for the project you can use [doxygen](https://doxygen.nl/). Simply enter the docs directory and type `doxygen`. Now enter the generated `html` directory and either:
+
+- Open the `index.html` with your browser
+- Or host an http server. Example: `python3 -m http.server 8000` &rarr; in browser: `localhost:8000`
+
+You can also just view all doxygen documentation inside the header files.
