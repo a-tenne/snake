@@ -13,6 +13,8 @@ set(SDL_TEST_LIBRARY OFF)
 set(BUILD_SHARED_LIBS OFF)
 set(SDLTTF_SAMPLES OFF)
 
+# I use this option to avoid linker errors due to googletest using a different runtime
+# Might change in the future
 if(MSVC)
   add_compile_options(/MTd)
 endif()
@@ -32,7 +34,7 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(SDL3_ttf)
 
-file(GLOB_RECURSE SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp)
+file(GLOB_RECURSE SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp ${PROJECT_SOURCE_DIR}/include/*.hpp)
 list(REMOVE_ITEM TEST_SOURCES ${PROJECT_SOURCE_DIR}/src/main.cpp)
 
 add_library(${PROJECT_NAME}Lib ${SOURCES})
@@ -73,7 +75,7 @@ if(BUILD_TESTING)
   FetchContent_MakeAvailable(googletest)
   enable_testing()
 
-  file(GLOB_RECURSE TEST_SOURCES ${PROJECT_SOURCE_DIR}/tests/*.cpp)
+  file(GLOB_RECURSE TEST_SOURCES ${PROJECT_SOURCE_DIR}/tests/*.cpp ${PROJECT_SOURCE_DIR}/tests/*.hpp)
   add_executable(Tests ${TEST_SOURCES})
   if (MSVC)
     target_compile_options(Tests PRIVATE /W4 /WX)
