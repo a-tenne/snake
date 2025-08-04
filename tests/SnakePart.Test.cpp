@@ -46,7 +46,7 @@ TEST_P (SnakePartParamTest, MultipleMoves)
       break;
     }
   part.set_direction (dir);
-  for ([[maybe_unused]] int _ : std::ranges::views::iota (0, 10))
+  for ([[maybe_unused]] int _ : std::views::iota (0, 10))
     {
       part.move ();
     }

@@ -36,6 +36,7 @@ Snake::eat_fruit ()
   m_body.push_back (m_last_pos);
   m_last_pos = SnakePart::create_invalid ();
 }
+
 Snake
 Snake::create_snake (int x_head, int y_head, Direction dir)
 {

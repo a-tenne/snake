@@ -47,7 +47,7 @@ void sdl_exit_error ();
 float calculate_dimension (int window_dimension, int field_dimension);
 
 /**
- * @brief Resolves the path to the font asset, based on program startup path.
+ * @brief Resolves the absolute path to the font asset, based on program startup path.
  * Will turn a Windows style path into a Unix style path.
  *
  * @param argc The argument count from main.

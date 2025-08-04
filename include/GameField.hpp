@@ -50,8 +50,9 @@ public:
   void render (SDL_Renderer &renderer, int window_height, int window_width);
 
   /**
-   * @brief Changes the direction of the snake if valid.
-   * @param dir New direction to set for the snake.
+   * @brief Changes the contents of the value of the snake direction buffer if
+   * valid.
+   * @param dir New direction to set for the buffer.
    * @throws std::logic_error If snake state or direction change is invalid.
    */
   void change_snake_direction (Direction dir);

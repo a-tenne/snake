@@ -11,14 +11,12 @@
 
 /**
  * @brief Represents a fruit entity that can be collected by the player.
- * Inherits from Entity and uses a predefined color to distinguish fruits from
- * other game elements.
  */
 class Fruit : public Entity
 {
 public:
   /**
-   * @brief Constructs a Fruit at the specified grid position.
+   * @brief Constructs a fruit object at the specified grid position.
    * @param x The X coordinate on the grid.
    * @param y The Y coordinate on the grid.
    */

@@ -145,6 +145,7 @@ GameField::render (SDL_Renderer &renderer, int window_height, int window_width)
     {
       part.render (renderer, m_border, m_side_length);
     }
+
   Fruit::set_color (renderer);
   for (auto &fruit : m_fruits)
     {
@@ -174,6 +175,7 @@ GameField::update ()
       m_snake.set_direction (m_dir_buffer);
       m_dir_buffer = Direction::INVALID;
     }
+  
   m_snake.move ();
 
   // Kill conditions
@@ -237,11 +239,13 @@ GameField::change_snake_direction (Direction dir)
           "Trying to change snake direction to invalid direction in {}",
           fn_name));
     }
-
+  // If there's no tail, the snake can turn to the opposite direction
   if (m_snake.get_body ().empty ())
     {
       m_dir_buffer = dir;
     }
+  // If there is, we only turn if the direction is not the opposite of the
+  // current one
   else if (auto it = m_opposites.find (dir);
            it != m_opposites.end ()
            && m_snake.get_head ().get_direction () != it->second)
@@ -253,6 +257,8 @@ GameField::change_snake_direction (Direction dir)
 void
 GameField::init ()
 {
+  // Set snake head initial coordinates roughly in the middle, so it doesn't
+  // immediately bump into a wall
   int x_snake = std::rand () % (m_side_length / 2) + m_side_length / 4;
   int y_snake = std::rand () % (m_side_length / 2) + m_side_length / 4;
 
@@ -284,11 +290,12 @@ GameField::init ()
   m_snake = Snake::create_snake (x_snake, y_snake, dir);
   m_snake_alive = true;
 
-  for ([[maybe_unused]] int _ : std::ranges::views::iota (0, m_num_fruits))
+  for ([[maybe_unused]] int _ : std::views::iota (0, m_num_fruits))
     {
       spawn_fruit ();
     }
 }
+
 void
 GameField::clear ()
 {
@@ -296,6 +303,7 @@ GameField::clear ()
   m_snake = Snake::create_invalid ();
   m_snake_alive = false;
 }
+
 bool
 GameField::is_snake_alive () const
 {

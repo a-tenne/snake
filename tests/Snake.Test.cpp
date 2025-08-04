@@ -18,7 +18,7 @@ TEST_F (SnakeMoveTest, InvalidThrows)
 
 TEST_F (SnakeMoveTest, BiggerSnakeMoves)
 {
-  constexpr auto range = std::ranges::views::iota;
+  constexpr auto range = std::views::iota;
   snake.set_direction (Direction::RIGHT);
   for ([[maybe_unused]] int _ : range (0, 5))
     {
@@ -66,7 +66,7 @@ TEST_P (SnakeMoveParamTest, MultipleMoves)
       break;
     }
   snake.set_direction (dir);
-  for ([[maybe_unused]] int _ : std::ranges::views::iota (0, 10))
+  for ([[maybe_unused]] int _ : std::views::iota (0, 10))
     {
       snake.move ();
     }

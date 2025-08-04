@@ -1,6 +1,8 @@
 #include "Game.hpp"
 #include "Color.hpp"
 #include "SDL3/SDL_render.h"
+#include "SDL3/SDL_time.h"
+#include "SDL3/SDL_timer.h"
 #include "SDL3/SDL_video.h"
 #include "SDL3_ttf/SDL_ttf.h"
 #include "SnakePart.hpp"
@@ -26,6 +28,8 @@ Game::Game (std::string_view title, int width, int height,
                   "{} <= 0 passed to {}: {}", arg_name, fn_name, arg_val));
             }
         };
+  // Nasty stuff can happen if one of these is <= 0, for example division by
+  // zero or the window just not being created.
   param_gt_zero (width, "Window width");
   m_width = width;
   param_gt_zero (height, "Window height");
@@ -34,6 +38,7 @@ Game::Game (std::string_view title, int width, int height,
   m_tickrate_ms = 1000 / static_cast<SDL_Time> (tps);
   param_gt_zero (fps, "FPS");
   m_framerate_ms = 1000 / static_cast<Uint32> (fps);
+
   const bool sdl_correct_init
       = SDL_Init (sdl_flags) && TTF_Init ()
         && SDL_CreateWindowAndRenderer (title.data (), width, height,
@@ -48,9 +53,12 @@ Game::Game (std::string_view title, int width, int height,
     {
       sdl_exit_error ();
     }
+
+  // Random generation is used a lot everywhere
   std::srand (static_cast<unsigned int> (std::time (nullptr)));
 }
 
+// SDL deleters do not check for nullptr, so we have to do it for them
 template <typename T>
 static void
 sdl_delete (T *ptr, void (*deleter) (T *))
@@ -75,8 +83,10 @@ Game::run ()
 {
   bool text_rendered_once = false;
   int old_height = m_height, old_width = m_width;
+
   while (m_running)
     {
+      SDL_Time framestart_time = m_time;
       SDL_Event event;
       while (SDL_PollEvent (&event))
         {
@@ -86,6 +96,7 @@ Game::run ()
         {
           return;
         }
+      // Optimization to not rerender the text for no reason
       if (old_height != m_height || old_width != m_width)
         {
           text_rendered_once = false;
@@ -116,12 +127,25 @@ Game::run ()
             }
           break;
         }
+      // If we are mid game, we want the old m_time when we enter the update
+      // loop due to the math there
       if (m_state != GameState::RUNNING && !SDL_GetCurrentTime (&m_time))
           [[unlikely]]
         {
           sdl_exit_error ();
         }
-      SDL_Delay (m_framerate_ms);
+      // Limit FPS
+      SDL_Time frametime_ms = SDL_NS_TO_MS (m_time - framestart_time);
+      if (frametime_ms < m_framerate_ms)
+        {
+          SDL_Delay (m_framerate_ms - frametime_ms);
+          // FPS counter in console:
+          // SDL_Time after_frame;
+          // SDL_GetCurrentTime(&after_frame);
+          // frametime_ms = SDL_NS_TO_MS(after_frame - framestart_time);
+          // std::println ("FPS: {}",
+          //               1000.0 / static_cast<double>(frametime));
+        }
     }
 }
 
@@ -214,6 +238,7 @@ Game::render_high_score ()
     {
       old_highscore = m_highscore;
       std::string text = std::format ("High Score: {}", m_highscore);
+
       SDL_Color white = { 255, 255, 255, 255 };
       surface_unique surface (
           TTF_RenderText_Solid (m_font, text.data (), 0, white));
@@ -221,12 +246,14 @@ Game::render_high_score ()
         {
           sdl_exit_error ();
         }
+      // Releases old unique_ptr and acquires ownership of the new one
       texture.reset (
           SDL_CreateTextureFromSurface (m_renderer, surface.get ()));
       if (texture == nullptr) [[unlikely]]
         {
           sdl_exit_error ();
         }
+      // Puts the high score on the top left with half the regular font size
       float scale = 0.5;
       rect = { .x = 0,
                .y = 0,
@@ -240,8 +267,7 @@ void
 Game::render_text_fields (std::string_view field1, std::string_view field2,
                           bool show_high_score)
 {
-  SDL_Color white = { 255, 255, 255, SDL_ALPHA_OPAQUE };
-
+  SDL_Color white = { 255, 255, 255, 255 };
   surface_unique surface1 (
       TTF_RenderText_Solid (m_font, field1.data (), 0, white));
   surface_unique surface2 (
@@ -250,6 +276,7 @@ Game::render_text_fields (std::string_view field1, std::string_view field2,
     {
       sdl_exit_error ();
     }
+
   texture_unique texture1 (
       SDL_CreateTextureFromSurface (m_renderer, surface1.get ()));
   texture_unique texture2 (
@@ -258,7 +285,8 @@ Game::render_text_fields (std::string_view field1, std::string_view field2,
     {
       sdl_exit_error ();
     }
-
+  // Both text boxes are in the middle, big text is slightly offset to the top
+  // by its scale
   float scale = 1.5f;
   SDL_FRect rect1
       = { .x = static_cast<float> (m_width - surface1->w * scale) / 2,
@@ -269,6 +297,7 @@ Game::render_text_fields (std::string_view field1, std::string_view field2,
                       .y = static_cast<float> (m_height + surface2->h) / 2,
                       .w = static_cast<float> (surface2->w),
                       .h = static_cast<float> (surface2->h) };
+  // Set background to black and render text boxes over it
   using colors::BLACK;
   bool render_success
       = SDL_SetRenderDrawColor (m_renderer, BLACK.r, BLACK.g, BLACK.b, BLACK.a)
@@ -279,10 +308,12 @@ Game::render_text_fields (std::string_view field1, std::string_view field2,
     {
       sdl_exit_error ();
     }
+  // Render highscore if needed
   if (show_high_score && !render_high_score ()) [[unlikely]]
     {
       sdl_exit_error ();
     }
+  // Apply changes
   if (!SDL_RenderPresent (m_renderer)) [[unlikely]]
     {
       sdl_exit_error ();
@@ -314,27 +345,32 @@ Game::render_running ()
     }
 
   time_t current = SDL_NS_TO_MS (current_time),
-         previous = SDL_NS_TO_MS (m_time);
-  time_t frame_time = current - previous;
+         // m_time is the frame start time
+      previous = SDL_NS_TO_MS (m_time);
+  time_t frametime = current - previous;
+  // update this for next loop iteration
   m_time = current_time;
 
+  // Update highscore if needed
   if (int field_score = m_field.get_score (); m_highscore < field_score)
     {
-      m_highscore = m_field.get_score ();
+      m_highscore = field_score;
     }
 
-  m_accumulator += frame_time;
-
+  // Accumulator updates the game as many times as needed, keeping tickrate
+  // separate from framerate
+  m_accumulator += frametime;
   while (m_accumulator >= m_tickrate_ms)
     {
       m_field.update ();
       m_accumulator -= m_tickrate_ms;
     }
+
+  // Black background
   using colors::BLACK;
   bool render_success
       = SDL_SetRenderDrawColor (m_renderer, BLACK.r, BLACK.g, BLACK.b, BLACK.a)
         && SDL_RenderClear (m_renderer);
-
   if (!render_success) [[unlikely]]
     {
       sdl_exit_error ();
@@ -345,6 +381,8 @@ Game::render_running ()
     {
       sdl_exit_error ();
     }
+
+  // If the snake died, we reset the game state and end the game
   if (!m_field.is_snake_alive ())
     {
       m_state = GameState::FINI;

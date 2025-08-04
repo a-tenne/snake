@@ -84,7 +84,7 @@ TEST_F (GameFieldTest, InvalidRendererThrows)
 TEST_F (GameFieldTest, SnakeRunsIntoWall)
 {
   field.init ();
-  for ([[maybe_unused]] int _ : std::ranges::views::iota (0, FIELD_SIZE))
+  for ([[maybe_unused]] int _ : std::views::iota (0, FIELD_SIZE))
     {
       field.update ();
     }

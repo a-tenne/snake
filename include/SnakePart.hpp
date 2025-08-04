@@ -17,6 +17,7 @@
 constexpr int INVALID_POS = -1;
 
 /**
+ * @enum Direction
  * @brief Enum class for movement directions of the snake.
  */
 enum class Direction

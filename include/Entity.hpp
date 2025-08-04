@@ -11,7 +11,7 @@
 #include "SDL3/SDL_render.h"
 
 /**
- * @brief Represents a basic 2D entity with a position and color that can be
+ * @brief Represents a basic 2D entity with a position that can be
  * rendered.
  */
 class Entity
