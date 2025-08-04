@@ -3,7 +3,7 @@
  * @author Alexsander d. S. Tenne
  * @brief Declares the Fruit class, a specialized Entity representing a
  * collectible item in the game.
- * @version 1.0.0
+ * @version 1.1.0
  * @date 02/08/2025
  */
 #pragma once
@@ -23,4 +23,13 @@ public:
    * @param y The Y coordinate on the grid.
    */
   Fruit (int x, int y);
+
+  /**
+   * @brief Sets the renderer color to a certain value.
+   *
+   * @param renderer The target renderer.
+   * @throws std::runtime_error via sdl_exit_error() if setting the color
+   * fails.
+   */
+  static void set_color (SDL_Renderer &renderer);
 };

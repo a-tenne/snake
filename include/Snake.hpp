@@ -2,7 +2,7 @@
  * @file Snake.hpp
  * @author Alexsander d. S. Tenne
  * @brief Defines the Snake class representing the snake in the game.
- * @version 1.0.0
+ * @version 1.1.0
  * @date 02/08/2025
  */
 
@@ -72,6 +72,15 @@ public:
    * @throws std::logic_error if called before any movement occurs.
    */
   void eat_fruit ();
+
+  /**
+   * @brief Sets the renderer color to a certain value.
+   *
+   * @param renderer The target renderer.
+   * @throws std::runtime_error via sdl_exit_error() if setting the color
+   * fails.
+   */
+  static void set_color (SDL_Renderer &renderer);
 
 private:
   /**

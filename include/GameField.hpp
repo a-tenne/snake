@@ -3,7 +3,7 @@
  * @author Alexsander d. S. Tenne
  * @brief Defines the GameField class which manages the game field's state,
  * logic, and rendering.
- * @version 1.0.0
+ * @version 1.1.0
  * @date 02/08/2025
  */
 #pragma once
@@ -11,7 +11,7 @@
 #include "Fruit.hpp"
 #include "SDL3/SDL_render.h"
 #include "Snake.hpp"
-#include <memory>
+#include <unordered_map>
 #include <vector>
 
 /**
@@ -47,8 +47,7 @@ public:
    * range.
    * @throws std::runtime_error If SDL rendering fails.
    */
-  void render (SDL_Renderer &renderer, int window_height,
-               int window_width) const;
+  void render (SDL_Renderer &renderer, int window_height, int window_width);
 
   /**
    * @brief Changes the direction of the snake if valid.
@@ -101,12 +100,27 @@ private:
   void spawn_fruit ();
 
 private:
-  std::vector<std::unique_ptr<Fruit>>
-      m_fruits;               ///< Container for fruits on the field.
-  Snake m_snake;              ///< The snake instance.
-  int m_side_length;          ///< Number of cells per side.
-  int m_num_fruits;           ///< Number of fruits to spawn.
-  bool m_snake_alive = false; ///< Whether the snake is alive.
+  std::vector<Fruit> m_fruits; ///< Container for fruits on the field.
+  Snake m_snake;               ///< The snake instance.
+  const int m_side_length;     ///< Number of cells per side.
+  const int m_num_fruits;      ///< Number of fruits to spawn.
+  bool m_snake_alive = false;  ///< Whether the snake is alive.
+  struct
+  {
+    int width = 0;  ///< The window's old width.
+    int height = 0; ///< The window's old height.
+  } m_last_window;  ///< Container for old window data, used to avoid
+                    ///< unneccessary calculations.
+  SDL_FRect m_border
+      = { 0 }; ///< Used for storing the border of the game field.
+  std::vector<SDL_FRect> m_gray_rects; ///< Used for storing the gray squares
+                                       ///< that get rendered on the field.
   Direction m_dir_buffer
       = Direction::INVALID; ///< Buffer for direction changes.
+  std::unordered_map<Direction, Direction> m_opposites{
+    { Direction::LEFT, Direction::RIGHT },
+    { Direction::RIGHT, Direction::LEFT },
+    { Direction::UP, Direction::DOWN },
+    { Direction::DOWN, Direction::UP }
+  }; ///< Pairs of directions that are opposite to each other.
 };

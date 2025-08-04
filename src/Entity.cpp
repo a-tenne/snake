@@ -1,11 +1,10 @@
 #include "Entity.hpp"
+#include "SDL3/SDL_rect.h"
 #include "util.hpp"
 #include <format>
 #include <stdexcept>
 
-Entity::Entity (int x, int y, Color color) : m_point{ x, y }, m_color (color)
-{
-}
+Entity::Entity (int x, int y) : m_point{ x, y } {}
 
 bool
 Entity::collides (const Entity &other) const
@@ -48,11 +47,7 @@ Entity::render (SDL_Renderer &renderer, const SDL_FRect &border,
   frect.x = m_point.x * cell_size + border.x;
   frect.y = m_point.y * cell_size + border.y;
 
-  bool render_success
-      = SDL_SetRenderDrawColor (&renderer, m_color.r, m_color.g, m_color.b,
-                                m_color.a)
-        && SDL_RenderFillRect (&renderer, &frect);
-  if (!render_success) [[unlikely]]
+  if (!SDL_RenderFillRect (&renderer, &frect)) [[unlikely]]
     {
       sdl_exit_error ();
     }

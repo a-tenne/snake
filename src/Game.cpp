@@ -1,4 +1,5 @@
 #include "Game.hpp"
+#include "Color.hpp"
 #include "SDL3/SDL_render.h"
 #include "SDL3/SDL_video.h"
 #include "SDL3_ttf/SDL_ttf.h"
@@ -14,8 +15,7 @@ Game::Game (std::string_view title, int width, int height,
             SDL_InitFlags sdl_flags, SDL_WindowFlags window_flags,
             std::string_view font_path, int tps, int fps)
     : m_state{ GameState::START },
-      m_field{ config::SIDE_LENGTH, config::NUM_FRUITS }, m_width{ width },
-      m_height{ height }, m_tps{ tps }, m_fps{ fps }
+      m_field{ config::SIDE_LENGTH, config::NUM_FRUITS }
 {
   constexpr auto fn_name = PRETTY_FN_NAME;
   constexpr auto param_gt_zero
@@ -27,10 +27,13 @@ Game::Game (std::string_view title, int width, int height,
             }
         };
   param_gt_zero (width, "Window width");
+  m_width = width;
   param_gt_zero (height, "Window height");
+  m_height = height;
   param_gt_zero (tps, "TPS");
+  m_tickrate_ms = 1000 / static_cast<SDL_Time> (tps);
   param_gt_zero (fps, "FPS");
-
+  m_framerate_ms = 1000 / static_cast<Uint32> (fps);
   const bool sdl_correct_init
       = SDL_Init (sdl_flags) && TTF_Init ()
         && SDL_CreateWindowAndRenderer (title.data (), width, height,
@@ -71,10 +74,9 @@ void
 Game::run ()
 {
   bool text_rendered_once = false;
-  const Uint32 frame_rate_ms = 1000 / m_fps;
+  int old_height = m_height, old_width = m_width;
   while (m_running)
     {
-      int old_height = m_height, old_width = m_width;
       SDL_Event event;
       while (SDL_PollEvent (&event))
         {
@@ -87,6 +89,8 @@ Game::run ()
       if (old_height != m_height || old_width != m_width)
         {
           text_rendered_once = false;
+          old_height = m_height;
+          old_width = m_width;
         }
       switch (m_state)
         {
@@ -117,7 +121,7 @@ Game::run ()
         {
           sdl_exit_error ();
         }
-      SDL_Delay (frame_rate_ms);
+      SDL_Delay (m_framerate_ms);
     }
 }
 
@@ -205,32 +209,31 @@ Game::handle_event (SDL_Event &event)
 bool
 Game::render_high_score ()
 {
-  static constinit int last_high_score = -1;
-  static std::string text;
-  if (last_high_score != m_high_score)
+  auto &[old_highscore, texture, rect] = m_highscore_render_data;
+  if (old_highscore != m_highscore)
     {
-      last_high_score = m_high_score;
-      text = std::format ("High Score: {}", last_high_score);
+      old_highscore = m_highscore;
+      std::string text = std::format ("High Score: {}", m_highscore);
+      SDL_Color white = { 255, 255, 255, 255 };
+      surface_unique surface (
+          TTF_RenderText_Solid (m_font, text.data (), 0, white));
+      if (surface == nullptr) [[unlikely]]
+        {
+          sdl_exit_error ();
+        }
+      texture.reset (
+          SDL_CreateTextureFromSurface (m_renderer, surface.get ()));
+      if (texture == nullptr) [[unlikely]]
+        {
+          sdl_exit_error ();
+        }
+      float scale = 0.5;
+      rect = { .x = 0,
+               .y = 0,
+               .w = static_cast<float> (surface->w * scale),
+               .h = static_cast<float> (surface->h * scale) };
     }
-  SDL_Color white = { 255, 255, 255, SDL_ALPHA_OPAQUE };
-  surface_unique surface (
-      TTF_RenderText_Solid (m_font, text.data (), 0, white));
-  if (surface == nullptr) [[unlikely]]
-    {
-      sdl_exit_error ();
-    }
-  texture_unique texture (
-      SDL_CreateTextureFromSurface (m_renderer, surface.get ()));
-  if (texture == nullptr) [[unlikely]]
-    {
-      sdl_exit_error ();
-    }
-  float scale = 0.5;
-  SDL_FRect rect1 = { .x = 0,
-                      .y = 0,
-                      .w = static_cast<float> (surface->w * scale),
-                      .h = static_cast<float> (surface->h * scale) };
-  return SDL_RenderTexture (m_renderer, texture.get (), nullptr, &rect1);
+  return SDL_RenderTexture (m_renderer, texture.get (), nullptr, &rect);
 }
 
 void
@@ -304,9 +307,6 @@ Game::render_fini ()
 void
 Game::render_running ()
 {
-  static const SDL_Time tick_rate_ms = 1000 / m_tps;
-  static constinit SDL_Time accumulator = 0;
-
   SDL_Time current_time;
   if (!SDL_GetCurrentTime (&current_time)) [[unlikely]]
     {
@@ -318,17 +318,17 @@ Game::render_running ()
   time_t frame_time = current - previous;
   m_time = current_time;
 
-  if (int field_score = m_field.get_score (); m_high_score < field_score)
+  if (int field_score = m_field.get_score (); m_highscore < field_score)
     {
-      m_high_score = m_field.get_score ();
+      m_highscore = m_field.get_score ();
     }
 
-  accumulator += frame_time;
+  m_accumulator += frame_time;
 
-  while (accumulator >= tick_rate_ms)
+  while (m_accumulator >= m_tickrate_ms)
     {
       m_field.update ();
-      accumulator -= tick_rate_ms;
+      m_accumulator -= m_tickrate_ms;
     }
   using colors::BLACK;
   bool render_success
@@ -349,6 +349,6 @@ Game::render_running ()
     {
       m_state = GameState::FINI;
       m_field.clear ();
-      accumulator = 0;
+      m_accumulator = 0;
     }
 }

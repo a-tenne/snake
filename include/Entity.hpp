@@ -3,12 +3,10 @@
  * @author Alexsander d. S. Tenne
  * @brief Declares the Entity class representing a renderable, position-aware
  * object.
- * @version 1.0.0
+ * @version 1.1.0
  * @date 02/08/2025
  */
 #pragma once
-
-#include "Color.hpp"
 #include "Point.hpp"
 #include "SDL3/SDL_render.h"
 
@@ -20,16 +18,15 @@ class Entity
 {
 public:
   /**
-   * @brief Constructs an entity at the given (x, y) coordinate with a
-   * specified color.
+   * @brief Constructs an entity at the given (x, y) coordinate.
    * @param x The horizontal coordinate on the grid.
    * @param y The vertical coordinate on the grid.
-   * @param color The color of the entity.
    */
-  Entity (int x, int y, Color color);
+  Entity (int x, int y);
 
   /**
-   * @brief Renders the entity to the provided SDL renderer.
+   * @brief Renders the entity as a square to the provided SDL renderer.
+   * The SDL color should be specified beforehand.
    *
    * @param renderer The SDL renderer to draw to.
    * @param border The drawable area offset and dimensions.
@@ -66,5 +63,4 @@ public:
 
 protected:
   Point m_point; ///< The entity's 2D grid position.
-  Color m_color; ///< The entity's render color.
 };

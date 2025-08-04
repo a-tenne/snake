@@ -35,7 +35,7 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(SDL3_ttf)
 
 file(GLOB_RECURSE SOURCES ${PROJECT_SOURCE_DIR}/src/*.cpp ${PROJECT_SOURCE_DIR}/include/*.hpp)
-list(REMOVE_ITEM TEST_SOURCES ${PROJECT_SOURCE_DIR}/src/main.cpp)
+list(REMOVE_ITEM SOURCES ${PROJECT_SOURCE_DIR}/src/main.cpp)
 
 add_library(${PROJECT_NAME}Lib ${SOURCES})
 add_executable(${PROJECT_NAME} ${PROJECT_SOURCE_DIR}/src/main.cpp)
@@ -47,7 +47,7 @@ elseif(CMAKE_BUILD_TYPE STREQUAL "Debug")
   target_compile_options(${PROJECT_NAME}Lib PRIVATE -Wall -Werror -pedantic -fsanitize=address,undefined)
   target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Werror -pedantic -fsanitize=address,undefined)
   target_link_options(${PROJECT_NAME} PRIVATE -fsanitize=address,undefined)
-else()
+elseif(CMAKE_BUILD_TYPE STREQUAL "Release")
   target_compile_options(${PROJECT_NAME}Lib PRIVATE -Wall -Werror -pedantic)
   target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Werror -pedantic)
 endif()

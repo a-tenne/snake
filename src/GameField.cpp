@@ -1,4 +1,5 @@
 #include "GameField.hpp"
+#include "Color.hpp"
 #include "Fruit.hpp"
 #include "Point.hpp"
 #include "SDL3/SDL_rect.h"
@@ -9,10 +10,8 @@
 #include <cmath>
 #include <cstdlib>
 #include <format>
-#include <memory>
 #include <ranges>
 #include <stdexcept>
-#include <unordered_map>
 
 GameField::GameField (int side_length, int num_fruits)
     : m_snake{ Snake::create_invalid () }, m_side_length{ side_length },
@@ -41,21 +40,22 @@ GameField::GameField (int side_length, int num_fruits)
                        "fruit.\nSpaces available: {}, num_fruits: {}",
                        fn_name, spaces_available, num_fruits));
     }
+  m_fruits.reserve (static_cast<size_t> (num_fruits));
 }
 
 void
 GameField::spawn_fruit ()
 {
-  std::vector<const Point *> entity_coords;
-  for (auto &entity : m_fruits)
+  std::vector<Point> entity_coords;
+  for (auto &fruit : m_fruits)
     {
-      entity_coords.push_back (&entity->get_point ());
+      entity_coords.push_back (fruit.get_point ());
     }
   const SnakePart &head = m_snake.get_head ();
-  entity_coords.push_back (&head.get_point ());
+  entity_coords.push_back (head.get_point ());
   for (auto &part : m_snake.get_body ())
     {
-      entity_coords.push_back (&part.get_point ());
+      entity_coords.push_back (part.get_point ());
     }
   const long area = static_cast<long> (std::pow (m_side_length, 2));
   const long num_entities = static_cast<long> (entity_coords.size ());
@@ -65,9 +65,9 @@ GameField::spawn_fruit ()
     }
   const auto collides = [entity_coords] (int x, int y) {
     return std::find_if (entity_coords.begin (), entity_coords.end (),
-                         [x, y] (const Point *p) {
+                         [x, y] (Point p) {
                            // the nullptr check is for my own sanity
-                           return p != nullptr && p->x == x && p->y == y;
+                           return p.x == x && p.y == y;
                          })
            != entity_coords.end ();
   };
@@ -79,12 +79,11 @@ GameField::spawn_fruit ()
     }
   while (collides (x, y));
 
-  m_fruits.push_back (std::make_unique<Fruit> (x, y));
+  m_fruits.emplace_back (x, y);
 }
 
 void
-GameField::render (SDL_Renderer &renderer, int window_height,
-                   int window_width) const
+GameField::render (SDL_Renderer &renderer, int window_height, int window_width)
 {
   using colors::GRAY, colors::YELLOW;
   // do not render last frame if it's a collision
@@ -92,61 +91,69 @@ GameField::render (SDL_Renderer &renderer, int window_height,
     {
       return;
     }
-  SDL_FRect border;
-  // The difference between window height and width is used to offset the
-  // border position, and is divided by 2 to center it
-  float diff = static_cast<float> (std::abs (window_height - window_width));
-  border.x = window_width > window_height ? diff / 2 : 0;
-  border.y = window_height > window_width ? diff / 2 : 0;
-
-  float length = static_cast<float> (std::min (window_width, window_height));
-  border.w = length;
-  border.h = length;
-
-  // Calculate the size for a square
-  float cell_size
-      = calculate_dimension (static_cast<int> (length), m_side_length);
-
-  // Fill every second cell within the border to be gray, creating that chess
-  // board look
-  std::vector<SDL_FRect> gray_rects;
-  gray_rects.reserve (static_cast<size_t> (std::pow (m_side_length, 2) / 2.0));
-  for (int i : std::views::iota (0, m_side_length))
+  if (m_last_window.width != window_width
+      || m_last_window.height != window_height)
     {
-      // Writing this inner loop in any other way I found is way too
-      // complicated
-      for (int j = i % 2; j < m_side_length; j += 2)
+      m_last_window.height = window_height;
+      m_last_window.width = window_width;
+      // The difference between window height and width is used to offset the
+      // border position, and is divided by 2 to center it
+      float diff
+          = static_cast<float> (std::abs (window_height - window_width));
+      m_border.x = window_width > window_height ? diff / 2 : 0;
+      m_border.y = window_height > window_width ? diff / 2 : 0;
+
+      float length
+          = static_cast<float> (std::min (window_width, window_height));
+      m_border.w = length;
+      m_border.h = length;
+
+      // Calculate the size for a square
+      float cell_size
+          = calculate_dimension (static_cast<int> (length), m_side_length);
+
+      // Fill every second cell within the border to be gray, creating that
+      // chess board look
+      m_gray_rects.clear ();
+      m_gray_rects.reserve (
+          static_cast<size_t> (std::pow (m_side_length, 2) / 2.0));
+      for (int i : std::views::iota (0, m_side_length))
         {
-          float h = cell_size;
-          float w = cell_size;
-          float x = i * cell_size + border.x;
-          float y = j * cell_size + border.y;
-          gray_rects.emplace_back (x, y, w, h);
+          // Writing this inner loop in any other way I found is way too
+          // complicated
+          for (int j = i % 2; j < m_side_length; j += 2)
+            {
+              float h = cell_size;
+              float w = cell_size;
+              float x = i * cell_size + m_border.x;
+              float y = j * cell_size + m_border.y;
+              m_gray_rects.emplace_back (x, y, w, h);
+            }
         }
     }
   bool render_success
       = SDL_SetRenderDrawColor (&renderer, GRAY.r, GRAY.g, GRAY.b, GRAY.a)
-        && SDL_RenderFillRects (&renderer, gray_rects.data (),
-                                static_cast<int> (gray_rects.size ()));
+        && SDL_RenderFillRects (&renderer, m_gray_rects.data (),
+                                static_cast<int> (m_gray_rects.size ()));
   if (!render_success) [[unlikely]]
     {
       sdl_exit_error ();
     }
-
-  m_snake.get_head ().render (renderer, border, m_side_length);
+  Snake::set_color (renderer);
+  m_snake.get_head ().render (renderer, m_border, m_side_length);
   for (auto &part : m_snake.get_body ())
     {
-      part.render (renderer, border, m_side_length);
+      part.render (renderer, m_border, m_side_length);
     }
-
+  Fruit::set_color (renderer);
   for (auto &fruit : m_fruits)
     {
-      fruit->render (renderer, border, m_side_length);
+      fruit.render (renderer, m_border, m_side_length);
     }
 
   render_success = SDL_SetRenderDrawColor (&renderer, YELLOW.r, YELLOW.g,
                                            YELLOW.b, YELLOW.a)
-                   && SDL_RenderRect (&renderer, &border);
+                   && SDL_RenderRect (&renderer, &m_border);
   if (!render_success) [[unlikely]]
     {
       sdl_exit_error ();
@@ -179,7 +186,7 @@ GameField::update ()
   // Find out if snake head collides with any fruits
   auto fruit_iter
       = std::find_if (m_fruits.begin (), m_fruits.end (), [this] (auto &f) {
-          return m_snake.get_head ().collides (*f);
+          return m_snake.get_head ().collides (f);
         });
 
   if (fruit_iter != m_fruits.end ())
@@ -213,11 +220,6 @@ GameField::self_collides () const
 void
 GameField::change_snake_direction (Direction dir)
 {
-  static std::unordered_map<Direction, Direction> opposites
-      = { { Direction::LEFT, Direction::RIGHT },
-          { Direction::RIGHT, Direction::LEFT },
-          { Direction::UP, Direction::DOWN },
-          { Direction::DOWN, Direction::UP } };
 
   constexpr auto fn_name = PRETTY_FN_NAME;
 
@@ -240,8 +242,8 @@ GameField::change_snake_direction (Direction dir)
     {
       m_dir_buffer = dir;
     }
-  else if (auto it = opposites.find (dir);
-           it != opposites.end ()
+  else if (auto it = m_opposites.find (dir);
+           it != m_opposites.end ()
            && m_snake.get_head ().get_direction () != it->second)
     {
       m_dir_buffer = dir;

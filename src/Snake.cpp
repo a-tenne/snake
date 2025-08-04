@@ -1,5 +1,7 @@
 #include "Snake.hpp"
+#include "Color.hpp"
 #include "SnakePart.hpp"
+#include "util.hpp"
 #include <stdexcept>
 
 Snake::Snake (int x_head, int y_head, Direction dir)
@@ -62,4 +64,14 @@ const std::vector<SnakePart> &
 Snake::get_body () const
 {
   return m_body;
+}
+void
+Snake::set_color (SDL_Renderer &renderer)
+{
+  using colors::GREEN;
+  if (!SDL_SetRenderDrawColor (&renderer, GREEN.r, GREEN.g, GREEN.b, GREEN.a))
+      [[unlikely]]
+    {
+      sdl_exit_error ();
+    }
 }

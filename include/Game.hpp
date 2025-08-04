@@ -3,14 +3,17 @@
  * @author Alexsander d. S. Tenne
  * @brief Declares the Game class managing the main Snake game loop, rendering,
  * input handling, and SDL initialization.
- * @version 1.0.0
+ * @version 1.1.0
  * @date 02/08/2025
  */
 #pragma once
 
 #include "GameField.hpp"
+#include "SDL3/SDL_rect.h"
+#include "SDL3/SDL_stdinc.h"
 #include "SDL3_ttf/SDL_ttf.h"
 #include <SDL3/SDL.h>
+#include <memory>
 #include <string_view>
 
 /**
@@ -155,16 +158,24 @@ private:
     FINI     ///< Game over screen, waiting for input to restart.
   } m_state;
 
-  SDL_Window *m_window;     ///< Pointer to the SDL window.
-  SDL_Renderer *m_renderer; ///< Pointer to the SDL renderer.
-  TTF_Font *m_font;         ///< Loaded font for text rendering.
+  SDL_Window *m_window = nullptr;     ///< Pointer to the SDL window.
+  SDL_Renderer *m_renderer = nullptr; ///< Pointer to the SDL renderer.
+  TTF_Font *m_font = nullptr;         ///< Loaded font for text rendering.
   GameField m_field;        ///< The game field containing snake and fruits.
-  int m_width;              ///< Window width in pixels.
-  int m_height;             ///< Window height in pixels.
-  int m_high_score = 0;     ///< Highest score achieved in the session.
-  const int m_tps;          ///< Target ticks per second (game logic updates).
-  const int m_fps;          ///< Target frames per second (rendering).
+  int m_width = 0;              ///< Window width in pixels.
+  int m_height = 0;             ///< Window height in pixels.
+  int m_highscore = 0;      ///< Highest score achieved in the session.
+  SDL_Time m_tickrate_ms = 0;          ///< Target tickrate per millisecond (game logic updates).
+  Uint32 m_framerate_ms = 0;          ///< Target framerate per millisecond (rendering).
   bool m_running = true;    ///< Flag to keep the main loop running.
   bool m_is_fullscreen = false; ///< Tracks fullscreen state.
-  SDL_Time m_time;              ///< Time tracking for frame timing.
+  SDL_Time m_time = 0;              ///< Time tracking for frame timing.
+  SDL_Time m_accumulator = 0; ///< Accumulates time between frames.
+  struct
+  {
+    int last_high_score = -1; ///< Old highscore.
+    texture_unique texture;   ///< The texture with the highscore text.
+    SDL_FRect rect = { 0 };   ///< Rectangle where the texture gets rendered.
+  } m_highscore_render_data;  ///< Used to store highscore render data in order
+                              ///< to avoid unneccesary heap usage.
 };
